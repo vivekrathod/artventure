@@ -1,28 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
-import { Package, Calendar, DollarSign } from "lucide-react";
+import { Package, Calendar, DollarSign, Truck } from "lucide-react";
 import { OrderWithItems } from "@/types/database";
+import { createClient } from "@/lib/supabase/client";
 
 export default function OrdersPage() {
-  const { userId, isLoaded } = useAuth();
   const router = useRouter();
+  const supabase = createClient();
   const [orders, setOrders] = useState<OrderWithItems[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (isLoaded && !userId) {
-      router.push("/sign-in");
-      return;
+    async function checkAuthAndFetchOrders() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push("/auth/signin?redirectTo=/account/orders");
+        return;
+      }
+
+      await fetchOrders();
     }
 
-    if (userId) {
-      fetchOrders();
-    }
-  }, [userId, isLoaded, router]);
+    checkAuthAndFetchOrders();
+  }, [router]);
 
   const fetchOrders = async () => {
     try {
@@ -141,15 +147,57 @@ export default function OrdersPage() {
                           </p>
                           <p className="text-gray-600">
                             Quantity: {item.quantity} × $
-                            {item.product_price.toFixed(2)}
+                            {item.price_at_purchase.toFixed(2)}
                           </p>
                         </div>
                         <p className="font-semibold text-gray-900">
-                          ${item.subtotal.toFixed(2)}
+                          ${(item.price_at_purchase * item.quantity).toFixed(2)}
                         </p>
                       </div>
                     ))}
                   </div>
+
+                  {/* Order Totals */}
+                  <div className="mt-4 space-y-2 border-t pt-4 text-sm">
+                    <div className="flex justify-between text-gray-600">
+                      <span>Subtotal</span>
+                      <span>
+                        $
+                        {(
+                          order.total_amount -
+                          order.shipping_cost -
+                          order.tax_amount
+                        ).toFixed(2)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-gray-600">
+                      <span>Shipping</span>
+                      <span>${order.shipping_cost.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-gray-600">
+                      <span>Tax</span>
+                      <span>${order.tax_amount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between border-t pt-2 font-semibold text-gray-900">
+                      <span>Total</span>
+                      <span>${order.total_amount.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  {/* Tracking Info */}
+                  {order.tracking_number && (
+                    <div className="mt-4 flex items-center gap-2 rounded-lg bg-purple-50 p-3">
+                      <Truck className="h-5 w-5 text-purple-600" />
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-purple-900">
+                          Tracking Number
+                        </p>
+                        <p className="text-sm text-purple-700">
+                          {order.tracking_number}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Shipping Address */}
                   {order.shipping_address && (
@@ -158,9 +206,11 @@ export default function OrdersPage() {
                         Shipping Address
                       </h4>
                       <p className="mt-2 text-sm text-gray-600">
-                        {order.shipping_address.line1}
-                        {order.shipping_address.line2 &&
-                          `, ${order.shipping_address.line2}`}
+                        {order.shipping_address.full_name}
+                        <br />
+                        {order.shipping_address.address_line1}
+                        {order.shipping_address.address_line2 &&
+                          `, ${order.shipping_address.address_line2}`}
                         <br />
                         {order.shipping_address.city},{" "}
                         {order.shipping_address.state}{" "}
