@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
@@ -20,6 +19,11 @@ export const metadata: Metadata = {
   title: "Artisan Beaded Jewelry | Handcrafted with Love",
   description: "Discover unique, handcrafted beaded jewelry. Each piece is carefully crafted with premium materials and attention to detail.",
   keywords: "handmade jewelry, beaded jewelry, artisan jewelry, handcrafted accessories",
+  openGraph: {
+    title: "Artisan Beaded Jewelry",
+    description: "Handcrafted beaded jewelry made with love",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -28,15 +32,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body
-          className={`${playfair.variable} ${inter.variable} antialiased`}
-        >
-          {children}
-          <Toaster position="top-center" />
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <body
+        className={`${playfair.variable} ${inter.variable} antialiased`}
+      >
+        {children}
+        <Toaster position="top-center" />
+      </body>
+    </html>
   );
 }
