@@ -46,8 +46,10 @@ export default function Header() {
   }, []);
 
   const handleSignOut = async () => {
-    await fetch("/auth/signout", { method: "POST" });
     setShowUserMenu(false);
+    await supabase.auth.signOut();
+    setUser(null);
+    setIsAdmin(false);
     router.push("/");
     router.refresh();
   };
