@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
 
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export async function GET() {
   try {
     await requireAdmin();
@@ -15,8 +22,12 @@ export async function GET() {
           id,
           image_url,
           alt_text,
-          is_primary,
           display_order
+        ),
+        category:categories (
+          id,
+          name,
+          slug
         )
       `
       )
@@ -45,25 +56,33 @@ export async function POST(request: NextRequest) {
       name,
       description,
       price,
+      category_id,
+      inventory_count,
+      weight_oz,
       materials,
       dimensions,
       care_instructions,
-      stock_quantity,
-      status,
+      is_published,
       featured,
     } = body;
+
+    // Generate slug from name
+    const slug = generateSlug(name);
 
     const { data, error } = await supabaseAdmin
       .from("products")
       .insert({
         name,
+        slug,
         description,
         price,
+        category_id,
+        inventory_count: inventory_count || 0,
+        weight_oz,
         materials,
         dimensions,
         care_instructions,
-        stock_quantity: stock_quantity || 0,
-        status: status || "draft",
+        is_published: is_published || false,
         featured: featured || false,
       })
       .select()

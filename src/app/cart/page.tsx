@@ -64,9 +64,12 @@ export default function CartPage() {
             <div className="lg:col-span-2">
               <div className="space-y-4">
                 {items.map((item) => {
-                  const primaryImage = item.product.product_images?.find(
-                    (img: any) => img.is_primary
-                  ) || item.product.product_images?.[0];
+                  // Get primary image (lowest display_order)
+                  const images = item.product.product_images || [];
+                  const sortedImages = [...images].sort(
+                    (a: any, b: any) => a.display_order - b.display_order
+                  );
+                  const primaryImage = sortedImages[0];
 
                   return (
                     <div
@@ -74,7 +77,7 @@ export default function CartPage() {
                       className="flex gap-4 rounded-lg bg-white p-4 shadow-md"
                     >
                       <Link
-                        href={`/products/${item.product.id}`}
+                        href={`/products/${item.product.slug || item.product.id}`}
                         className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-gray-200"
                       >
                         {primaryImage ? (
@@ -94,7 +97,7 @@ export default function CartPage() {
                       <div className="flex flex-1 flex-col justify-between">
                         <div>
                           <Link
-                            href={`/products/${item.product.id}`}
+                            href={`/products/${item.product.slug || item.product.id}`}
                             className="font-semibold text-gray-900 hover:text-rose-600"
                           >
                             {item.product.name}

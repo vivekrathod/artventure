@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { getUser } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { sendOrderConfirmation } from "@/lib/resend";
 
 export async function GET() {
   try {
-    const { userId } = await auth();
+    const user = await getUser();
 
-    if (!userId) {
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -19,13 +20,12 @@ export async function GET() {
           id,
           product_id,
           product_name,
-          product_price,
-          quantity,
-          subtotal
+          price_at_purchase,
+          quantity
         )
       `
       )
-      .eq("clerk_user_id", userId)
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -48,18 +48,17 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const user = await getUser();
     const body = await request.json();
 
     const {
       email,
-      first_name,
-      last_name,
       shipping_address,
-      billing_address,
+      shipping_cost,
+      tax_amount,
       total_amount,
       items,
-      stripe_payment_intent_id,
+      stripe_payment_id,
     } = body;
 
     // Generate order number
@@ -70,14 +69,13 @@ export async function POST(request: NextRequest) {
       .from("orders")
       .insert({
         order_number: orderNumber,
-        clerk_user_id: userId || null,
+        user_id: user?.id || null,
         email,
-        first_name,
-        last_name,
         shipping_address,
-        billing_address,
+        shipping_cost,
+        tax_amount,
         total_amount,
-        stripe_payment_intent_id,
+        stripe_payment_id,
         status: "pending",
       })
       .select()
@@ -96,9 +94,8 @@ export async function POST(request: NextRequest) {
       order_id: order.id,
       product_id: item.product_id,
       product_name: item.product_name,
-      product_price: item.product_price,
+      price_at_purchase: item.price_at_purchase,
       quantity: item.quantity,
-      subtotal: item.product_price * item.quantity,
     }));
 
     const { error: itemsError } = await supabaseAdmin
@@ -113,12 +110,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get full order with items for email
+    const { data: fullOrder } = await supabaseAdmin
+      .from("orders")
+      .select(
+        `
+        *,
+        order_items (
+          id,
+          product_id,
+          product_name,
+          price_at_purchase,
+          quantity
+        )
+      `
+      )
+      .eq("id", order.id)
+      .single();
+
+    // Send order confirmation email
+    if (fullOrder) {
+      try {
+        await sendOrderConfirmation(fullOrder);
+      } catch (emailError) {
+        console.error("Failed to send order confirmation email:", emailError);
+        // Don't fail the order creation if email fails
+      }
+    }
+
     // Clear cart if user is logged in
-    if (userId) {
-      await supabaseAdmin
-        .from("cart_items")
-        .delete()
-        .eq("clerk_user_id", userId);
+    if (user) {
+      await supabaseAdmin.from("cart_items").delete().eq("user_id", user.id);
     }
 
     return NextResponse.json(order);

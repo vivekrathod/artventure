@@ -15,9 +15,8 @@ export async function GET() {
           id,
           product_id,
           product_name,
-          product_price,
-          quantity,
-          subtotal
+          price_at_purchase,
+          quantity
         )
       `
       )

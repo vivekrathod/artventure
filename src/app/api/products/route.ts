@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase/client";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
   try {
+    const supabase = await createServerSupabaseClient();
     const searchParams = request.nextUrl.searchParams;
     const featured = searchParams.get("featured");
-    const status = searchParams.get("status");
+    const category = searchParams.get("category");
+    const search = searchParams.get("search");
 
     let query = supabase
       .from("products")
@@ -16,22 +18,28 @@ export async function GET(request: NextRequest) {
           id,
           image_url,
           alt_text,
-          is_primary,
           display_order
+        ),
+        category:categories (
+          id,
+          name,
+          slug
         )
       `
       )
+      .eq("is_published", true)
       .order("created_at", { ascending: false });
 
     if (featured === "true") {
       query = query.eq("featured", true);
     }
 
-    if (status) {
-      query = query.eq("status", status);
-    } else {
-      // Default to published products for public access
-      query = query.eq("status", "published");
+    if (category) {
+      query = query.eq("category_id", category);
+    }
+
+    if (search) {
+      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
     }
 
     const { data, error } = await query;

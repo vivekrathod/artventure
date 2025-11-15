@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase/client";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const supabase = await createServerSupabaseClient();
     const { id } = await params;
 
     const { data, error } = await supabase
@@ -17,13 +18,17 @@ export async function GET(
           id,
           image_url,
           alt_text,
-          is_primary,
           display_order
+        ),
+        category:categories (
+          id,
+          name,
+          slug
         )
       `
       )
       .eq("id", id)
-      .eq("status", "published")
+      .eq("is_published", true)
       .single();
 
     if (error) {

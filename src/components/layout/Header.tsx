@@ -1,15 +1,56 @@
 "use client";
 
 import Link from "next/link";
-import { useUser, UserButton } from "@clerk/nextjs";
-import { ShoppingCart, Heart, Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { User } from "@supabase/supabase-js";
+import { ShoppingCart, Heart, Menu, X, UserCircle, LogOut } from "lucide-react";
 import { useCartStore } from "@/store/cart";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
-  const { isSignedIn, user } = useUser();
+  const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const totalItems = useCartStore((state) => state.getTotalItems());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const router = useRouter();
+  const supabase = createClient();
+
+  useEffect(() => {
+    // Get initial user
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      if (user) {
+        // Check admin status
+        supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("user_id", user.id)
+          .single()
+          .then(({ data }) => setIsAdmin(data?.is_admin || false));
+      }
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (!session?.user) {
+        setIsAdmin(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await fetch("/auth/signout", { method: "POST" });
+    setShowUserMenu(false);
+    router.push("/");
+    router.refresh();
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
@@ -47,16 +88,6 @@ export default function Header() {
 
           {/* Right Side Icons */}
           <div className="flex items-center space-x-4">
-            {/* Wishlist */}
-            {isSignedIn && (
-              <Link
-                href="/wishlist"
-                className="text-gray-700 transition-colors hover:text-rose-600"
-              >
-                <Heart className="h-6 w-6" />
-              </Link>
-            )}
-
             {/* Cart */}
             <Link
               href="/cart"
@@ -70,22 +101,57 @@ export default function Header() {
               )}
             </Link>
 
-            {/* User Button or Sign In */}
-            {isSignedIn ? (
-              <>
-                <UserButton afterSignOutUrl="/" />
-                {user?.publicMetadata?.isAdmin && (
-                  <Link
-                    href="/admin"
-                    className="rounded-md bg-gray-900 px-4 py-2 text-sm text-white transition-colors hover:bg-gray-800"
-                  >
-                    Admin
-                  </Link>
+            {/* User Menu or Sign In */}
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-gray-700 transition-colors hover:bg-gray-100"
+                >
+                  <UserCircle className="h-6 w-6" />
+                  <span className="hidden md:inline text-sm">
+                    {user.email}
+                  </span>
+                </button>
+
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-lg bg-white py-2 shadow-xl border">
+                    <Link
+                      href="/account"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      My Account
+                    </Link>
+                    <Link
+                      href="/account/orders"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      Orders
+                    </Link>
+                    {isAdmin && (
+                      <Link
+                        href="/admin"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 border-t"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        Admin Dashboard
+                      </Link>
+                    )}
+                    <button
+                      onClick={handleSignOut}
+                      className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-100 border-t"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign Out
+                    </button>
+                  </div>
                 )}
-              </>
+              </div>
             ) : (
               <Link
-                href="/sign-in"
+                href="/auth/signin"
                 className="rounded-md bg-rose-600 px-4 py-2 text-sm text-white transition-colors hover:bg-rose-700"
               >
                 Sign In

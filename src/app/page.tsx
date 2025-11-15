@@ -118,14 +118,17 @@ export default async function Home() {
           {featuredProducts.length > 0 ? (
             <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
               {featuredProducts.slice(0, 6).map((product: any) => {
-                const primaryImage = product.product_images?.find(
-                  (img: any) => img.is_primary
-                ) || product.product_images?.[0];
+                // Get primary image (lowest display_order)
+                const images = product.product_images || [];
+                const sortedImages = [...images].sort(
+                  (a, b) => a.display_order - b.display_order
+                );
+                const primaryImage = sortedImages[0];
 
                 return (
                   <Link
                     key={product.id}
-                    href={`/products/${product.id}`}
+                    href={`/products/${product.slug || product.id}`}
                     className="group"
                   >
                     <div className="overflow-hidden rounded-lg bg-white shadow-md transition-shadow hover:shadow-lg">

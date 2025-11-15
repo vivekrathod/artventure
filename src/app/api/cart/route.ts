@@ -1,14 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { requireAuth } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
 export async function GET() {
   try {
-    const { userId } = await auth();
-
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const user = await requireAuth();
 
     const { data, error } = await supabaseAdmin
       .from("cart_items")
@@ -18,19 +14,20 @@ export async function GET() {
         product:products (
           id,
           name,
+          slug,
           price,
           description,
-          stock_quantity,
+          inventory_count,
           product_images (
             id,
             image_url,
             alt_text,
-            is_primary
+            display_order
           )
         )
       `
       )
-      .eq("clerk_user_id", userId);
+      .eq("user_id", user.id);
 
     if (error) {
       console.error("Error fetching cart:", error);
@@ -41,30 +38,25 @@ export async function GET() {
     }
 
     return NextResponse.json(data);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error in cart API:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
+      { error: error.message || "Unauthorized" },
+      { status: 401 }
     );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
-
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
+    const user = await requireAuth();
     const { productId, quantity } = await request.json();
 
     // Check if item already exists in cart
     const { data: existingItem } = await supabaseAdmin
       .from("cart_items")
       .select("*")
-      .eq("clerk_user_id", userId)
+      .eq("user_id", user.id)
       .eq("product_id", productId)
       .single();
 
@@ -90,7 +82,7 @@ export async function POST(request: NextRequest) {
       const { data, error } = await supabaseAdmin
         .from("cart_items")
         .insert({
-          clerk_user_id: userId,
+          user_id: user.id,
           product_id: productId,
           quantity,
         })
@@ -106,23 +98,18 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(data);
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error in cart API:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
+      { error: error.message || "Unauthorized" },
+      { status: 401 }
     );
   }
 }
 
 export async function DELETE(request: NextRequest) {
   try {
-    const { userId } = await auth();
-
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
+    const user = await requireAuth();
     const searchParams = request.nextUrl.searchParams;
     const productId = searchParams.get("productId");
 
@@ -136,7 +123,7 @@ export async function DELETE(request: NextRequest) {
     const { error } = await supabaseAdmin
       .from("cart_items")
       .delete()
-      .eq("clerk_user_id", userId)
+      .eq("user_id", user.id)
       .eq("product_id", productId);
 
     if (error) {
@@ -147,11 +134,11 @@ export async function DELETE(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error in cart API:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
+      { error: error.message || "Unauthorized" },
+      { status: 401 }
     );
   }
 }

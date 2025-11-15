@@ -1,17 +1,49 @@
-import { redirect } from "next/navigation";
-import { auth, currentUser } from "@clerk/nextjs/server";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
 import { User, Mail, Calendar } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
-export default async function AccountPage() {
-  const { userId } = await auth();
+export default function AccountPage() {
+  const router = useRouter();
+  const supabase = createClient();
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!userId) {
-    redirect("/sign-in");
+  useEffect(() => {
+    async function getUser() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push("/auth/signin?redirectTo=/account");
+      } else {
+        setUser(user);
+      }
+      setLoading(false);
+    }
+
+    getUser();
+  }, [router, supabase.auth]);
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="flex min-h-screen items-center justify-center">
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </MainLayout>
+    );
   }
 
-  const user = await currentUser();
+  if (!user) {
+    return null;
+  }
 
   return (
     <MainLayout>
@@ -36,7 +68,7 @@ export default async function AccountPage() {
                   <div>
                     <p className="text-sm text-gray-600">Name</p>
                     <p className="font-semibold text-gray-900">
-                      {user?.firstName} {user?.lastName}
+                      {user.user_metadata?.full_name || "Not provided"}
                     </p>
                   </div>
                 </div>
@@ -47,9 +79,7 @@ export default async function AccountPage() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Email</p>
-                    <p className="font-semibold text-gray-900">
-                      {user?.emailAddresses[0]?.emailAddress}
-                    </p>
+                    <p className="font-semibold text-gray-900">{user.email}</p>
                   </div>
                 </div>
 
@@ -60,9 +90,7 @@ export default async function AccountPage() {
                   <div>
                     <p className="text-sm text-gray-600">Member Since</p>
                     <p className="font-semibold text-gray-900">
-                      {user?.createdAt
-                        ? new Date(user.createdAt).toLocaleDateString()
-                        : "N/A"}
+                      {new Date(user.created_at).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -81,15 +109,12 @@ export default async function AccountPage() {
                 </p>
               </Link>
 
-              <Link
-                href="/wishlist"
-                className="rounded-lg bg-white p-6 shadow-md transition-shadow hover:shadow-lg"
-              >
+              <div className="rounded-lg bg-white p-6 shadow-md opacity-50">
                 <h3 className="font-semibold text-gray-900">Wishlist</h3>
                 <p className="mt-2 text-sm text-gray-600">
-                  View and manage your saved items
+                  Coming soon - Save your favorite items
                 </p>
-              </Link>
+              </div>
             </div>
           </div>
         </div>

@@ -79,9 +79,12 @@ export default function ProductDetailPage() {
     );
   }
 
-  const images = product.product_images || [];
+  // Sort images by display_order
+  const images = [...(product.product_images || [])].sort(
+    (a, b) => a.display_order - b.display_order
+  );
   const currentImage = images[selectedImageIndex] || null;
-  const inStock = product.stock_quantity > 0;
+  const inStock = product.inventory_count > 0;
 
   return (
     <MainLayout>
@@ -197,7 +200,7 @@ export default function ProductDetailPage() {
                     <button
                       onClick={() =>
                         setQuantity(
-                          Math.min(product.stock_quantity, quantity + 1)
+                          Math.min(product.inventory_count, quantity + 1)
                         )
                       }
                       className="px-4 py-2 text-gray-600 hover:bg-gray-100"

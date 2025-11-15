@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
 
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -15,25 +22,33 @@ export async function PUT(
       name,
       description,
       price,
+      category_id,
+      inventory_count,
+      weight_oz,
       materials,
       dimensions,
       care_instructions,
-      stock_quantity,
-      status,
+      is_published,
       featured,
     } = body;
+
+    // Generate new slug if name changed
+    const slug = generateSlug(name);
 
     const { data, error } = await supabaseAdmin
       .from("products")
       .update({
         name,
+        slug,
         description,
         price,
+        category_id,
+        inventory_count,
+        weight_oz,
         materials,
         dimensions,
         care_instructions,
-        stock_quantity,
-        status,
+        is_published,
         featured,
       })
       .eq("id", id)
