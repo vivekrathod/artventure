@@ -16,8 +16,10 @@ export default function NewProductPage() {
     materials: "",
     dimensions: "",
     care_instructions: "",
-    stock_quantity: "0",
-    status: "draft",
+    inventory_count: "0",
+    category_id: "",
+    weight_oz: "",
+    is_published: false,
     featured: false,
   });
 
@@ -47,7 +49,9 @@ export default function NewProductPage() {
         body: JSON.stringify({
           ...formData,
           price: parseFloat(formData.price),
-          stock_quantity: parseInt(formData.stock_quantity),
+          inventory_count: parseInt(formData.inventory_count),
+          weight_oz: formData.weight_oz ? parseFloat(formData.weight_oz) : null,
+          category_id: formData.category_id || null,
         }),
       });
 
@@ -134,12 +138,12 @@ export default function NewProductPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-900">
-                    Stock Quantity *
+                    Inventory Count *
                   </label>
                   <input
                     type="number"
-                    name="stock_quantity"
-                    value={formData.stock_quantity}
+                    name="inventory_count"
+                    value={formData.inventory_count}
                     onChange={handleChange}
                     min="0"
                     required
@@ -189,36 +193,40 @@ export default function NewProductPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-900">
-                  Status
-                </label>
-                <select
-                  name="status"
-                  value={formData.status}
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-rose-600 focus:outline-none focus:ring-1 focus:ring-rose-600"
-                >
-                  <option value="draft">Draft</option>
-                  <option value="published">Published</option>
-                </select>
-              </div>
+              <div className="flex items-center space-x-6">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="is_published"
+                    name="is_published"
+                    checked={formData.is_published}
+                    onChange={handleChange}
+                    className="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600"
+                  />
+                  <label
+                    htmlFor="is_published"
+                    className="ml-2 block text-sm font-medium text-gray-900"
+                  >
+                    Published (visible to customers)
+                  </label>
+                </div>
 
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="featured"
-                  name="featured"
-                  checked={formData.featured}
-                  onChange={handleChange}
-                  className="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600"
-                />
-                <label
-                  htmlFor="featured"
-                  className="ml-2 block text-sm text-gray-900"
-                >
-                  Featured Product
-                </label>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="featured"
+                    name="featured"
+                    checked={formData.featured}
+                    onChange={handleChange}
+                    className="h-4 w-4 rounded border-gray-300 text-rose-600 focus:ring-rose-600"
+                  />
+                  <label
+                    htmlFor="featured"
+                    className="ml-2 block text-sm text-gray-900"
+                  >
+                    Featured Product
+                  </label>
+                </div>
               </div>
             </div>
 
