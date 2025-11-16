@@ -52,6 +52,28 @@ export async function POST(request: NextRequest) {
     const user = await requireAuth();
     const { productId, quantity } = await request.json();
 
+    // Validate quantity
+    if (!quantity || quantity < 1) {
+      return NextResponse.json(
+        { error: "Invalid quantity" },
+        { status: 400 }
+      );
+    }
+
+    // Check product inventory
+    const { data: product } = await supabaseAdmin
+      .from("products")
+      .select("inventory_count, name")
+      .eq("id", productId)
+      .single();
+
+    if (!product) {
+      return NextResponse.json(
+        { error: "Product not found" },
+        { status: 404 }
+      );
+    }
+
     // Check if item already exists in cart
     const { data: existingItem } = await supabaseAdmin
       .from("cart_items")
@@ -60,11 +82,25 @@ export async function POST(request: NextRequest) {
       .eq("product_id", productId)
       .single();
 
+    const newQuantity = existingItem
+      ? existingItem.quantity + quantity
+      : quantity;
+
+    // Validate against inventory
+    if (newQuantity > product.inventory_count) {
+      return NextResponse.json(
+        {
+          error: `Only ${product.inventory_count} items available in stock`,
+        },
+        { status: 400 }
+      );
+    }
+
     if (existingItem) {
       // Update quantity
       const { data, error } = await supabaseAdmin
         .from("cart_items")
-        .update({ quantity: existingItem.quantity + quantity })
+        .update({ quantity: newQuantity })
         .eq("id", existingItem.id)
         .select()
         .single();

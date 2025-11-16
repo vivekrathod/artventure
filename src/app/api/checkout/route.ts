@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getUser } from "@/lib/auth";
 import { stripe } from "@/lib/stripe";
+import { supabaseAdmin } from "@/lib/supabase/server";
 
 const FLAT_SHIPPING_RATE = parseFloat(process.env.FLAT_SHIPPING_RATE || "5.99");
 const FREE_SHIPPING_THRESHOLD = parseFloat(process.env.FREE_SHIPPING_THRESHOLD || "50.00");
@@ -15,6 +16,47 @@ export async function POST(request: NextRequest) {
         { error: "No items provided" },
         { status: 400 }
       );
+    }
+
+    // Validate inventory for all items before creating checkout session
+    for (const item of items) {
+      const productId = item.product_id || item.id;
+
+      if (!productId) {
+        return NextResponse.json(
+          { error: "Invalid item: missing product ID" },
+          { status: 400 }
+        );
+      }
+
+      const { data: product, error } = await supabaseAdmin
+        .from("products")
+        .select("inventory_count, name, is_published")
+        .eq("id", productId)
+        .single();
+
+      if (error || !product) {
+        return NextResponse.json(
+          { error: `Product not found: ${item.name}` },
+          { status: 404 }
+        );
+      }
+
+      if (!product.is_published) {
+        return NextResponse.json(
+          { error: `Product no longer available: ${product.name}` },
+          { status: 400 }
+        );
+      }
+
+      if (product.inventory_count < item.quantity) {
+        return NextResponse.json(
+          {
+            error: `Insufficient inventory for ${product.name}. Only ${product.inventory_count} available.`,
+          },
+          { status: 400 }
+        );
+      }
     }
 
     // Calculate subtotal
