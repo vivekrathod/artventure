@@ -154,11 +154,11 @@ export default function AdminOrdersPage() {
                             </p>
                             <p className="text-gray-600">
                               Quantity: {item.quantity} × $
-                              {item.product_price.toFixed(2)}
+                              {item.price_at_purchase.toFixed(2)}
                             </p>
                           </div>
                           <p className="font-semibold text-gray-900">
-                            ${item.subtotal.toFixed(2)}
+                            ${(item.price_at_purchase * item.quantity).toFixed(2)}
                           </p>
                         </div>
                       ))}
@@ -172,17 +172,23 @@ export default function AdminOrdersPage() {
                         Shipping Address
                       </h4>
                       <p className="mt-2 text-sm text-gray-600">
-                        {order.first_name} {order.last_name}
+                        {order.shipping_address.name}
                         <br />
-                        {order.shipping_address.line1}
-                        {order.shipping_address.line2 &&
-                          `, ${order.shipping_address.line2}`}
+                        {order.shipping_address.address_line1}
+                        {order.shipping_address.address_line2 &&
+                          `, ${order.shipping_address.address_line2}`}
                         <br />
                         {order.shipping_address.city},{" "}
                         {order.shipping_address.state}{" "}
                         {order.shipping_address.postal_code}
                         <br />
                         {order.shipping_address.country}
+                        {order.shipping_address.phone && (
+                          <>
+                            <br />
+                            Phone: {order.shipping_address.phone}
+                          </>
+                        )}
                       </p>
                     </div>
                   )}

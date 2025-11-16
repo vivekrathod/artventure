@@ -58,6 +58,14 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // Prepare metadata with items (ensure product_id is included)
+    const metadataItems = items.map((item: any) => ({
+      product_id: item.product_id || item.id, // Support both formats
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+    }));
+
     // Create checkout session with automatic tax
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -68,8 +76,10 @@ export async function POST(request: NextRequest) {
         `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: cancelUrl || `${process.env.NEXT_PUBLIC_APP_URL}/cart`,
       metadata: {
-        user_id: user?.id || "guest",
+        user_id: user?.id || "",
+        email: user?.email || "",
         shipping_cost: shippingCost.toString(),
+        items: JSON.stringify(metadataItems), // Serialize items for webhook
       },
       shipping_address_collection: {
         allowed_countries: ["US", "CA", "GB", "AU", "NZ"],

@@ -30,6 +30,7 @@ export default function CheckoutPage() {
       }
 
       const checkoutItems = items.map((item) => ({
+        product_id: item.product.id, // Required for order creation
         name: item.product.name,
         description: item.product.description,
         price: item.product.price,

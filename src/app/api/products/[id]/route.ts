@@ -9,7 +9,13 @@ export async function GET(
     const supabase = await createServerSupabaseClient();
     const { id } = await params;
 
-    const { data, error } = await supabase
+    // Check if the parameter is a UUID or a slug
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const isUuid = uuidRegex.test(id);
+
+    // Query by either id or slug
+    let query = supabase
       .from("products")
       .select(
         `
@@ -27,9 +33,15 @@ export async function GET(
         )
       `
       )
-      .eq("id", id)
-      .eq("is_published", true)
-      .single();
+      .eq("is_published", true);
+
+    if (isUuid) {
+      query = query.eq("id", id);
+    } else {
+      query = query.eq("slug", id);
+    }
+
+    const { data, error } = await query.single();
 
     if (error) {
       console.error("Error fetching product:", error);

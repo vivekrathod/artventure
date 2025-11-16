@@ -339,6 +339,22 @@ CREATE TRIGGER update_cart_items_updated_at BEFORE UPDATE ON cart_items
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ============================================================================
+-- INVENTORY MANAGEMENT FUNCTION
+-- ============================================================================
+CREATE OR REPLACE FUNCTION reduce_inventory(product_id UUID, quantity INTEGER)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE products
+  SET inventory_count = inventory_count - quantity
+  WHERE id = product_id AND inventory_count >= quantity;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Insufficient inventory for product %', product_id;
+  END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ============================================================================
 -- INSERT SAMPLE CATEGORIES (OPTIONAL)
 -- ============================================================================
 INSERT INTO categories (name, slug, description) VALUES
