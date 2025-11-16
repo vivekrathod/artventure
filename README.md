@@ -8,7 +8,8 @@ A modern, elegant e-commerce website for selling handmade beaded jewelry built w
 
 ### 📚 Documentation
 
-- **[TESTING.md](./TESTING.md)** - Complete testing procedures for all features
+- **[TESTING.md](./TESTING.md)** - Manual testing procedures for all features
+- **[tests/README.md](./tests/README.md)** - Automated test suite documentation
 - **[claude.md](./claude.md)** - Comprehensive technical knowledge base
 - **README.md** (this file) - Setup and deployment guide
 
@@ -20,8 +21,9 @@ A modern, elegant e-commerce website for selling handmade beaded jewelry built w
 - ✅ Added contact form email integration with Resend
 - ✅ Added comprehensive inventory validation to prevent overselling
 - ✅ Updated environment variable configuration
-- ✅ Created extensive testing documentation
+- ✅ Created extensive manual testing documentation
 - ✅ Built comprehensive technical knowledge base
+- ✅ **Added complete automated test suite** (Unit + API + E2E)
 
 ---
 
@@ -175,6 +177,45 @@ UPDATE profiles
 SET is_admin = true
 WHERE user_id = 'your-user-id-from-auth-users-table';
 ```
+
+### 8. Running Tests (Optional but Recommended)
+
+See **[tests/README.md](./tests/README.md)** for complete testing documentation.
+
+#### Quick Start
+
+```bash
+# Install test dependencies (included in npm install)
+npm install
+
+# Run all unit and API tests
+npm test
+
+# Run tests in watch mode (for development)
+npm test -- --watch
+
+# Run E2E tests (requires Playwright browsers)
+npx playwright install
+npm run test:e2e
+
+# Run all tests
+npm run test:all
+
+# Generate coverage report
+npm run test:coverage
+```
+
+#### Test Types
+
+- **Unit Tests** - Test individual functions and components
+- **API Tests** - Test API endpoints with real database
+- **E2E Tests** - Test complete user workflows in browser
+
+See [tests/README.md](./tests/README.md) for detailed testing guide including:
+- Setting up test database
+- Writing new tests
+- Debugging tests
+- CI/CD integration
 
 ---
 
