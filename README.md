@@ -10,6 +10,7 @@ A modern, elegant e-commerce website for selling handmade beaded jewelry built w
 
 - **[TESTING.md](./TESTING.md)** - Manual testing procedures for all features
 - **[tests/README.md](./tests/README.md)** - Automated test suite documentation
+- **[.github/workflows/README.md](./.github/workflows/README.md)** - CI/CD pipeline documentation
 - **[claude.md](./claude.md)** - Comprehensive technical knowledge base
 - **README.md** (this file) - Setup and deployment guide
 
@@ -24,6 +25,7 @@ A modern, elegant e-commerce website for selling handmade beaded jewelry built w
 - ✅ Created extensive manual testing documentation
 - ✅ Built comprehensive technical knowledge base
 - ✅ **Added complete automated test suite** (Unit + API + E2E)
+- ✅ **Added GitHub Actions CI/CD pipeline** (automated testing & deployment)
 
 ---
 
