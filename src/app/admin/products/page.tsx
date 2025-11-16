@@ -121,17 +121,17 @@ export default function AdminProductsPage() {
                       ${product.price.toFixed(2)}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                      {product.stock_quantity}
+                      {product.inventory_count}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">
                       <span
                         className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-                          product.status === "published"
+                          product.is_published
                             ? "bg-green-100 text-green-800"
                             : "bg-gray-100 text-gray-800"
                         }`}
                       >
-                        {product.status}
+                        {product.is_published ? "Published" : "Draft"}
                       </span>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">

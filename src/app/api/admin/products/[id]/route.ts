@@ -9,6 +9,39 @@ function generateSlug(name: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+// Get single product with images
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await requireAdmin();
+    const { id } = await params;
+
+    const { data, error } = await supabaseAdmin
+      .from("products")
+      .select(`
+        *,
+        product_images (id, image_url, alt_text, display_order),
+        category:categories (id, name, slug)
+      `)
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      console.error("Error fetching product:", error);
+      return NextResponse.json(
+        { error: "Failed to fetch product" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(data);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 403 });
+  }
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

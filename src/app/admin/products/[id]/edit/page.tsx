@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
 import toast from "react-hot-toast";
 import Link from "next/link";
@@ -14,11 +14,23 @@ interface UploadedImage {
   altText: string;
 }
 
-export default function NewProductPage() {
+interface ExistingImage {
+  id: string;
+  image_url: string;
+  alt_text: string | null;
+  display_order: number;
+}
+
+export default function EditProductPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const params = useParams();
+  const productId = params.id as string;
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [images, setImages] = useState<UploadedImage[]>([]);
+  const [existingImages, setExistingImages] = useState<ExistingImage[]>([]);
+  const [newImages, setNewImages] = useState<UploadedImage[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -32,6 +44,41 @@ export default function NewProductPage() {
     is_published: false,
     featured: false,
   });
+
+  useEffect(() => {
+    fetchProduct();
+  }, [productId]);
+
+  const fetchProduct = async () => {
+    try {
+      const res = await fetch(`/api/admin/products/${productId}`);
+      if (res.ok) {
+        const product = await res.json();
+        setFormData({
+          name: product.name || "",
+          description: product.description || "",
+          price: product.price?.toString() || "",
+          materials: product.materials || "",
+          dimensions: product.dimensions || "",
+          care_instructions: product.care_instructions || "",
+          inventory_count: product.inventory_count?.toString() || "0",
+          category_id: product.category_id || "",
+          weight_oz: product.weight_oz?.toString() || "",
+          is_published: product.is_published || false,
+          featured: product.featured || false,
+        });
+        setExistingImages(product.product_images || []);
+      } else {
+        toast.error("Failed to load product");
+        router.push("/admin/products");
+      }
+    } catch (error) {
+      console.error("Error fetching product:", error);
+      toast.error("Failed to load product");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -64,7 +111,7 @@ export default function NewProductPage() {
 
       if (res.ok) {
         const data = await res.json();
-        setImages((prev) => [
+        setNewImages((prev) => [
           ...prev,
           { url: data.url, fileName: data.fileName, altText: "" },
         ]);
@@ -82,25 +129,56 @@ export default function NewProductPage() {
     }
   };
 
-  const removeImage = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
+  const removeExistingImage = async (imageId: string) => {
+    if (!confirm("Are you sure you want to delete this image?")) return;
+
+    try {
+      const res = await fetch(`/api/admin/products/images/${imageId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
+        toast.success("Image deleted successfully");
+      } else {
+        toast.error("Failed to delete image");
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("Failed to delete image");
+    }
+  };
+
+  const removeNewImage = (index: number) => {
+    setNewImages((prev) => prev.filter((_, i) => i !== index));
     toast.success("Image removed");
   };
 
-  const updateImageAltText = (index: number, altText: string) => {
-    setImages((prev) =>
+  const updateNewImageAltText = (index: number, altText: string) => {
+    setNewImages((prev) =>
       prev.map((img, i) => (i === index ? { ...img, altText } : img))
+    );
+  };
+
+  const updateExistingImageAltText = async (
+    imageId: string,
+    altText: string
+  ) => {
+    setExistingImages((prev) =>
+      prev.map((img) =>
+        img.id === imageId ? { ...img, alt_text: altText } : img
+      )
     );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setSaving(true);
 
     try {
-      // Create product first
-      const res = await fetch("/api/admin/products", {
-        method: "POST",
+      // Update product
+      const res = await fetch(`/api/admin/products/${productId}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
@@ -113,37 +191,65 @@ export default function NewProductPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        toast.error(data.error || "Failed to create product");
+        toast.error(data.error || "Failed to update product");
         return;
       }
 
-      const product = await res.json();
-
-      // Add images to product
-      if (images.length > 0) {
-        for (let i = 0; i < images.length; i++) {
-          const img = images[i];
-          await fetch(`/api/admin/products/${product.id}/images`, {
-            method: "POST",
+      // Update alt text for existing images
+      for (const img of existingImages) {
+        if (img.alt_text !== null) {
+          await fetch(`/api/admin/products/images/${img.id}`, {
+            method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              image_url: img.url,
-              alt_text: img.altText || formData.name,
-              display_order: i,
+              alt_text: img.alt_text,
             }),
           });
         }
       }
 
-      toast.success("Product created successfully");
+      // Add new images
+      if (newImages.length > 0) {
+        const currentMaxOrder = existingImages.length > 0
+          ? Math.max(...existingImages.map((img) => img.display_order))
+          : -1;
+
+        for (let i = 0; i < newImages.length; i++) {
+          const img = newImages[i];
+          await fetch(`/api/admin/products/${productId}/images`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              image_url: img.url,
+              alt_text: img.altText || formData.name,
+              display_order: currentMaxOrder + i + 1,
+            }),
+          });
+        }
+      }
+
+      toast.success("Product updated successfully");
       router.push("/admin/products");
     } catch (error) {
-      console.error("Error creating product:", error);
-      toast.error("Failed to create product");
+      console.error("Error updating product:", error);
+      toast.error("Failed to update product");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="text-center">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-rose-600 border-t-transparent"></div>
+            <p className="mt-4 text-gray-600">Loading product...</p>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -159,7 +265,7 @@ export default function NewProductPage() {
           </div>
 
           <h1 className="font-playfair text-3xl font-bold text-gray-900">
-            Add New Product
+            Edit Product
           </h1>
 
           <form
@@ -268,13 +374,70 @@ export default function NewProductPage() {
                 />
               </div>
 
-              {/* Image Upload Section */}
+              {/* Image Management Section */}
               <div>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Product Images
                 </label>
 
-                {/* Upload Button */}
+                {/* Existing Images */}
+                {existingImages.length > 0 && (
+                  <div className="mb-4">
+                    <h3 className="text-sm font-medium text-gray-700 mb-2">
+                      Current Images
+                    </h3>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      {existingImages.map((img) => (
+                        <div
+                          key={img.id}
+                          className="relative rounded-lg border border-gray-200 p-4"
+                        >
+                          {/* Remove Button */}
+                          <button
+                            type="button"
+                            onClick={() => removeExistingImage(img.id)}
+                            className="absolute right-2 top-2 rounded-full bg-red-500 p-1.5 text-white transition-colors hover:bg-red-600"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+
+                          {/* Image Preview */}
+                          <div className="relative mb-3 aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
+                            <Image
+                              src={img.image_url}
+                              alt={img.alt_text || "Product image"}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+
+                          {/* Alt Text Input */}
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700">
+                              Alt Text (for accessibility)
+                            </label>
+                            <input
+                              type="text"
+                              value={img.alt_text || ""}
+                              onChange={(e) =>
+                                updateExistingImageAltText(img.id, e.target.value)
+                              }
+                              placeholder="Describe the image..."
+                              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-600 focus:outline-none focus:ring-1 focus:ring-rose-600"
+                            />
+                          </div>
+
+                          {/* Display Order Badge */}
+                          <div className="mt-2 text-xs text-gray-500">
+                            Display order: {img.display_order + 1}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload New Images */}
                 <div className="mb-4">
                   <label
                     htmlFor="image-upload"
@@ -290,7 +453,7 @@ export default function NewProductPage() {
                     ) : (
                       <>
                         <Upload className="h-5 w-5" />
-                        <span>Upload Image</span>
+                        <span>Upload New Image</span>
                       </>
                     )}
                   </label>
@@ -307,59 +470,59 @@ export default function NewProductPage() {
                   </p>
                 </div>
 
-                {/* Image Previews */}
-                {images.length > 0 && (
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {images.map((img, index) => (
-                      <div
-                        key={index}
-                        className="relative rounded-lg border border-gray-200 p-4"
-                      >
-                        {/* Remove Button */}
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute right-2 top-2 rounded-full bg-red-500 p-1.5 text-white transition-colors hover:bg-red-600"
+                {/* New Images Preview */}
+                {newImages.length > 0 && (
+                  <div className="mb-4">
+                    <h3 className="text-sm font-medium text-gray-700 mb-2">
+                      New Images (will be added on save)
+                    </h3>
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      {newImages.map((img, index) => (
+                        <div
+                          key={index}
+                          className="relative rounded-lg border border-green-200 bg-green-50 p-4"
                         >
-                          <X className="h-4 w-4" />
-                        </button>
+                          {/* Remove Button */}
+                          <button
+                            type="button"
+                            onClick={() => removeNewImage(index)}
+                            className="absolute right-2 top-2 rounded-full bg-red-500 p-1.5 text-white transition-colors hover:bg-red-600"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
 
-                        {/* Image Preview */}
-                        <div className="relative mb-3 aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
-                          <Image
-                            src={img.url}
-                            alt={img.altText || `Product image ${index + 1}`}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
+                          {/* Image Preview */}
+                          <div className="relative mb-3 aspect-square w-full overflow-hidden rounded-lg bg-gray-100">
+                            <Image
+                              src={img.url}
+                              alt={img.altText || `New product image ${index + 1}`}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
 
-                        {/* Alt Text Input */}
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700">
-                            Alt Text (for accessibility)
-                          </label>
-                          <input
-                            type="text"
-                            value={img.altText}
-                            onChange={(e) =>
-                              updateImageAltText(index, e.target.value)
-                            }
-                            placeholder="Describe the image..."
-                            className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-600 focus:outline-none focus:ring-1 focus:ring-rose-600"
-                          />
+                          {/* Alt Text Input */}
+                          <div>
+                            <label className="block text-xs font-medium text-gray-700">
+                              Alt Text (for accessibility)
+                            </label>
+                            <input
+                              type="text"
+                              value={img.altText}
+                              onChange={(e) =>
+                                updateNewImageAltText(index, e.target.value)
+                              }
+                              placeholder="Describe the image..."
+                              className="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-rose-600 focus:outline-none focus:ring-1 focus:ring-rose-600"
+                            />
+                          </div>
                         </div>
-
-                        {/* Display Order Badge */}
-                        <div className="mt-2 text-xs text-gray-500">
-                          Display order: {index + 1}
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 )}
 
-                {images.length === 0 && (
+                {existingImages.length === 0 && newImages.length === 0 && (
                   <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 py-8 text-center">
                     <ImageIcon className="h-12 w-12 text-gray-400" />
                     <p className="mt-2 text-sm text-gray-500">
@@ -409,10 +572,10 @@ export default function NewProductPage() {
             <div className="mt-8 flex gap-4">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={saving}
                 className="flex-1 rounded-lg bg-rose-600 px-6 py-3 text-white transition-colors hover:bg-rose-700 disabled:cursor-not-allowed disabled:bg-gray-400"
               >
-                {loading ? "Creating..." : "Create Product"}
+                {saving ? "Saving..." : "Save Changes"}
               </button>
               <Link
                 href="/admin/products"
