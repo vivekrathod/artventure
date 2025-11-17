@@ -1,24 +1,25 @@
 import { test, expect } from '@playwright/test';
+import { createAndSignInUser, signOut, cleanupUser } from '../helpers/e2e';
+import { createTestUser } from '../helpers/database';
 
 test.describe('Authentication Flow', () => {
-  const randomId = Math.random().toString(36).substring(2, 8);
-  const testEmail = `testuser${randomId}@example.com`;
-  const testPassword = 'TestPassword123!';
+  let testUserId: string;
+  let testEmail: string;
+  let testPassword: string;
 
-  test('should sign up new user', async ({ page }) => {
-    await page.goto('/auth/signup');
+  // Create test user via admin API before tests
+  test.beforeAll(async () => {
+    const { user, password } = await createTestUser();
+    testUserId = user.id;
+    testEmail = user.email!;
+    testPassword = password;
+  });
 
-    await page.fill('input[name="name"]', 'Test User');
-    await page.fill('input[name="email"]', testEmail);
-    await page.fill('input[name="password"]', testPassword);
-
-    await page.click('button[type="submit"]');
-
-    // Should redirect to home page
-    await expect(page).toHaveURL('/');
-
-    // Should show user email in header
-    await expect(page.locator('text=' + testEmail)).toBeVisible();
+  // Cleanup after all tests
+  test.afterAll(async () => {
+    if (testUserId) {
+      await cleanupUser(testUserId);
+    }
   });
 
   test('should sign in existing user', async ({ page }) => {
@@ -34,6 +35,25 @@ test.describe('Authentication Flow', () => {
 
     // Should be signed in
     await expect(page.locator('text=' + testEmail)).toBeVisible();
+  });
+
+  test('should sign up new user via UI', async ({ page }) => {
+    const newEmail = `test-signup-${Date.now()}@example.com`;
+    const newPassword = 'TestPassword123!';
+
+    await page.goto('/auth/signup');
+
+    await page.fill('input[name="name"]', 'New Test User');
+    await page.fill('input[name="email"]', newEmail);
+    await page.fill('input[name="password"]', newPassword);
+
+    await page.click('button[type="submit"]');
+
+    // Should redirect to home page
+    await expect(page).toHaveURL('/');
+
+    // Should show user email in header
+    await expect(page.locator('text=' + newEmail)).toBeVisible();
   });
 
   test('should show error for invalid credentials', async ({ page }) => {
@@ -58,11 +78,8 @@ test.describe('Authentication Flow', () => {
     // Wait for redirect
     await expect(page).toHaveURL('/');
 
-    // Click user menu
-    await page.click('button:has-text("' + testEmail + '")');
-
-    // Click sign out
-    await page.click('text=Sign Out');
+    // Sign out using helper
+    await signOut(page);
 
     // Should be signed out
     await expect(page.locator('text=Sign In')).toBeVisible();

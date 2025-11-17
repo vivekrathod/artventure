@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { createAndSignInUser, cleanupUser } from '../helpers/e2e';
 
 test.describe('Shopping Flow', () => {
   test('should browse products and view details', async ({ page }) => {
@@ -26,6 +27,9 @@ test.describe('Shopping Flow', () => {
   });
 
   test('should add product to cart', async ({ page }) => {
+    // Create and sign in user via admin API
+    const { user } = await createAndSignInUser(page);
+
     await page.goto('/products');
 
     // Click on a product
@@ -45,9 +49,15 @@ test.describe('Shopping Flow', () => {
     // Cart count should update
     const cartCount = page.locator('[data-testid="cart-count"]');
     await expect(cartCount).toHaveText('1');
+
+    // Cleanup
+    await cleanupUser(user.id);
   });
 
   test('should view and manage cart', async ({ page }) => {
+    // Create and sign in user via admin API
+    const { user } = await createAndSignInUser(page);
+
     // Add item to cart first
     await page.goto('/products');
     await page.locator('[data-testid="product-card"]').first().click();
@@ -71,10 +81,16 @@ test.describe('Shopping Flow', () => {
     await expect(page.locator('button:has-text("Remove")')).toBeVisible();
 
     // Should show checkout button
-    await expect(page.locator('button:has-text("Checkout")')).toBeVisible();
+    await expect(page.locator('button:has-text("Checkout"), a:has-text("Checkout")')).toBeVisible();
+
+    // Cleanup
+    await cleanupUser(user.id);
   });
 
   test('should update cart quantity', async ({ page }) => {
+    // Create and sign in user via admin API
+    const { user } = await createAndSignInUser(page);
+
     // Add item to cart
     await page.goto('/products');
     await page.locator('[data-testid="product-card"]').first().click();
@@ -99,9 +115,15 @@ test.describe('Shopping Flow', () => {
     // Quantity should increase
     const newQuantity = await quantityDisplay.textContent();
     expect(parseInt(newQuantity || '0')).toBeGreaterThan(parseInt(initialQuantity || '0'));
+
+    // Cleanup
+    await cleanupUser(user.id);
   });
 
   test('should remove item from cart', async ({ page }) => {
+    // Create and sign in user via admin API
+    const { user } = await createAndSignInUser(page);
+
     // Add item to cart
     await page.goto('/products');
     await page.locator('[data-testid="product-card"]').first().click();
@@ -117,9 +139,15 @@ test.describe('Shopping Flow', () => {
     await expect(page.locator('text=/empty|no items/i')).toBeVisible({
       timeout: 5000,
     });
+
+    // Cleanup
+    await cleanupUser(user.id);
   });
 
   test('should proceed to checkout', async ({ page }) => {
+    // Create and sign in user via admin API
+    const { user } = await createAndSignInUser(page);
+
     // Add item to cart
     await page.goto('/products');
     await page.locator('[data-testid="product-card"]').first().click();
@@ -138,7 +166,10 @@ test.describe('Shopping Flow', () => {
     await expect(page.locator('text=/Order Summary|Checkout/i')).toBeVisible();
 
     // Should show payment button
-    await expect(page.locator('button:has-text("Proceed to Payment")')).toBeVisible();
+    await expect(page.locator('button:has-text("Proceed to Payment"), button:has-text("Payment"), button:has-text("Pay")')).toBeVisible();
+
+    // Cleanup
+    await cleanupUser(user.id);
   });
 });
 

@@ -9,7 +9,8 @@ tests/
 ├── setup.ts              # Global test setup
 ├── helpers/              # Test utilities
 │   ├── api.ts           # API request helpers
-│   └── database.ts      # Database test helpers
+│   ├── database.ts      # Database test helpers (used by all tests)
+│   └── e2e.ts           # E2E-specific helpers (user creation/signin)
 ├── unit/                 # Unit tests
 │   ├── slug.test.ts     # Slug generation tests
 │   └── cart-store.test.ts # Cart store logic tests
@@ -69,8 +70,6 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 
 # Required for E2E tests
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-ADMIN_TEST_EMAIL=admin@example.com
-ADMIN_TEST_PASSWORD=YourAdminPassword
 
 # Optional
 STRIPE_SECRET_KEY=sk_test_...
@@ -83,18 +82,10 @@ RESEND_API_KEY=re_...
 
 1. Create a separate Supabase project for testing
 2. Run `supabase-schema.sql` to set up tables
-3. Create an admin user for E2E tests:
-
-```sql
--- Create admin user
-INSERT INTO auth.users (email, encrypted_password, email_confirmed_at)
-VALUES ('admin@example.com', crypt('YourPassword', gen_salt('bf')), now());
-
--- Get user ID and set as admin
-UPDATE profiles
-SET is_admin = true
-WHERE user_id = (SELECT id FROM auth.users WHERE email = 'admin@example.com');
-```
+3. **User creation is automatic** - E2E tests create users via Supabase Admin API
+   - No need to manually create test users
+   - Admin users are created automatically for admin tests
+   - Test users are cleaned up after each test
 
 ### 4. Install Playwright Browsers
 
@@ -215,15 +206,26 @@ describe('POST /api/my-endpoint', () => {
 ```typescript
 // tests/e2e/my-flow.spec.ts
 import { test, expect } from '@playwright/test';
+import { createAndSignInUser, cleanupUser } from '../helpers/e2e';
 
 test('should complete user flow', async ({ page }) => {
+  // Create user via admin API and sign in
+  const { user } = await createAndSignInUser(page);
+
   await page.goto('/');
-
   await page.click('text=Click Me');
-
   await expect(page).toHaveURL('/expected-page');
+
+  // Cleanup
+  await cleanupUser(user.id);
 });
 ```
+
+**Available E2E Helpers** (`tests/helpers/e2e.ts`):
+- `createAndSignInUser(page, email?)` - Create regular user via admin API and sign them in
+- `createAndSignInAdmin(page)` - Create admin user via admin API and sign them in
+- `signOut(page)` - Sign out current user
+- `cleanupUser(userId)` - Delete test user after test completes
 
 ## CI/CD Integration
 
