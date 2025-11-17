@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Authentication Flow', () => {
-  const testEmail = `test-${Date.now()}@example.com`;
+  const randomId = Math.random().toString(36).substring(2, 8);
+  const testEmail = `testuser${randomId}@example.com`;
   const testPassword = 'TestPassword123!';
 
   test('should sign up new user', async ({ page }) => {

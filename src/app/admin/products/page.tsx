@@ -111,7 +111,7 @@ export default function AdminProductsPage() {
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
                 {products.map((product) => (
-                  <tr key={product.id}>
+                  <tr key={product.id} data-testid="product-row">
                     <td className="whitespace-nowrap px-6 py-4">
                       <div className="text-sm font-medium text-gray-900">
                         {product.name}
@@ -141,12 +141,14 @@ export default function AdminProductsPage() {
                       <Link
                         href={`/admin/products/${product.id}/edit`}
                         className="mr-4 text-blue-600 hover:text-blue-900"
+                        data-testid="edit-product"
                       >
                         <Pencil className="inline h-5 w-5" />
                       </Link>
                       <button
                         onClick={() => handleDelete(product.id)}
                         className="text-red-600 hover:text-red-900"
+                        data-testid="delete-product"
                       >
                         <Trash2 className="inline h-5 w-5" />
                       </button>

@@ -75,6 +75,7 @@ export default function CartPage() {
                     <div
                       key={item.product.id}
                       className="flex gap-4 rounded-lg bg-white p-4 shadow-md"
+                      data-testid="cart-item"
                     >
                       <Link
                         href={`/products/${item.product.slug || item.product.id}`}
@@ -120,7 +121,7 @@ export default function CartPage() {
                             >
                               <Minus className="h-4 w-4" />
                             </button>
-                            <span className="px-4 py-1 text-gray-900">
+                            <span className="px-4 py-1 text-gray-900" data-testid="item-quantity">
                               {item.quantity}
                             </span>
                             <button

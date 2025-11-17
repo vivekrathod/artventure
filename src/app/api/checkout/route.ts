@@ -81,7 +81,6 @@ export async function POST(request: NextRequest) {
         unit_amount: Math.round(item.price * 100), // Convert to cents
       },
       quantity: item.quantity,
-      tax_behavior: "exclusive" as const,
     }));
 
     // Add shipping as a line item if applicable
@@ -96,7 +95,6 @@ export async function POST(request: NextRequest) {
           unit_amount: Math.round(shippingCost * 100),
         },
         quantity: 1,
-        tax_behavior: "exclusive" as const,
       });
     }
 
@@ -129,9 +127,11 @@ export async function POST(request: NextRequest) {
       phone_number_collection: {
         enabled: true,
       },
-      automatic_tax: {
-        enabled: true,
-      },
+      ...(process.env.STRIPE_TAX_ENABLED === "true" && {
+        automatic_tax: {
+          enabled: true,
+        },
+      }),
       customer_email: user?.email,
     });
 

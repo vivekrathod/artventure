@@ -26,9 +26,12 @@ export function createTestSupabaseClient() {
 export async function createTestProduct(overrides: any = {}) {
   const supabase = createTestSupabaseClient();
 
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(7);
+
   const productData = {
-    name: `Test Product ${Date.now()}`,
-    slug: `test-product-${Date.now()}`,
+    name: `Test Product ${timestamp}`,
+    slug: `test-product-${timestamp}-${random}`,
     description: 'Test product description',
     price: 29.99,
     inventory_count: 10,
@@ -36,6 +39,11 @@ export async function createTestProduct(overrides: any = {}) {
     featured: false,
     ...overrides,
   };
+
+  // If name is overridden but slug is not, generate slug from name
+  if (overrides.name && !overrides.slug) {
+    productData.slug = `${overrides.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${timestamp}-${random}`;
+  }
 
   const { data, error } = await supabase
     .from('products')

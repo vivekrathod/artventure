@@ -85,7 +85,7 @@ export default function ProductsPage() {
           {/* Header */}
           <div className="text-center">
             <h1 className="font-playfair text-4xl font-bold text-gray-900">
-              Our Collection
+              Shop
             </h1>
             <p className="mt-4 text-lg text-gray-600">
               Browse our handcrafted beaded jewelry pieces
@@ -154,6 +154,7 @@ export default function ProductsPage() {
                     key={product.id}
                     href={`/products/${product.slug || product.id}`}
                     className="group"
+                    data-testid="product-card"
                   >
                     <div className="overflow-hidden rounded-lg bg-white shadow-md transition-shadow hover:shadow-lg">
                       <div className="relative aspect-square bg-gray-200">

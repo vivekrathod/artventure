@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { beforeAll, afterAll, afterEach } from 'vitest';
 import * as dotenv from 'dotenv';
+import { cleanupTestData } from './helpers/database';
 
 // Load environment variables for testing
 dotenv.config({ path: '.env.local' });
@@ -13,8 +14,11 @@ if (!process.env.NEXT_PUBLIC_APP_URL) {
 // Mock fetch globally if needed
 global.fetch = global.fetch || fetch;
 
-beforeAll(() => {
+beforeAll(async () => {
   console.log('🧪 Test suite starting...');
+  console.log('🧹 Cleaning up old test data...');
+  await cleanupTestData();
+  console.log('✨ Test data cleaned');
 });
 
 afterAll(() => {

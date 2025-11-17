@@ -71,7 +71,7 @@ test.describe('Shopping Flow', () => {
     await expect(page.locator('button:has-text("Remove")')).toBeVisible();
 
     // Should show checkout button
-    await expect(page.locator('button:has-text("Checkout"), a:has-text("Checkout")')).toBeVisible();
+    await expect(page.locator('button:has-text("Checkout")')).toBeVisible();
   });
 
   test('should update cart quantity', async ({ page }) => {
@@ -129,7 +129,7 @@ test.describe('Shopping Flow', () => {
     await page.goto('/cart');
 
     // Click checkout
-    await page.click('button:has-text("Checkout"), a:has-text("Checkout")');
+    await page.click('button:has-text("Checkout")');
 
     // Should be on checkout page
     await expect(page).toHaveURL(/\/checkout/);
@@ -138,7 +138,7 @@ test.describe('Shopping Flow', () => {
     await expect(page.locator('text=/Order Summary|Checkout/i')).toBeVisible();
 
     // Should show payment button
-    await expect(page.locator('button:has-text("Payment"), button:has-text("Pay")')).toBeVisible();
+    await expect(page.locator('button:has-text("Proceed to Payment")')).toBeVisible();
   });
 });
 

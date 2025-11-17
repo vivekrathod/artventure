@@ -100,6 +100,7 @@ export default function AdminOrdersPage() {
                 <div
                   key={order.id}
                   className="rounded-lg bg-white p-6 shadow-md"
+                  data-testid="order-row"
                 >
                   {/* Order Header */}
                   <div className="flex flex-col justify-between gap-4 border-b pb-4 md:flex-row md:items-center">
@@ -129,6 +130,7 @@ export default function AdminOrdersPage() {
                         className={`rounded-full px-4 py-2 text-sm font-semibold capitalize ${getStatusColor(
                           order.status
                         )}`}
+                        data-testid="order-status"
                       >
                         <option value="pending">Pending</option>
                         <option value="processing">Processing</option>

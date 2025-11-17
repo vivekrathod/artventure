@@ -22,7 +22,7 @@ export default function SignUpPage() {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -37,8 +37,16 @@ export default function SignUpPage() {
       toast.error(error.message);
       setLoading(false);
     } else {
-      toast.success("Check your email to confirm your account!");
-      setLoading(false);
+      // Check if user was auto-confirmed and signed in (e.g., in development/test mode)
+      if (data.session) {
+        toast.success("Account created successfully!");
+        router.push(redirectTo);
+        router.refresh();
+      } else {
+        // Email confirmation required
+        toast.success("Check your email to confirm your account!");
+        setLoading(false);
+      }
     }
   };
 
@@ -141,6 +149,7 @@ export default function SignUpPage() {
               </label>
               <input
                 type="text"
+                name="name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
@@ -155,6 +164,7 @@ export default function SignUpPage() {
               </label>
               <input
                 type="email"
+                name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -169,6 +179,7 @@ export default function SignUpPage() {
               </label>
               <input
                 type="password"
+                name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required

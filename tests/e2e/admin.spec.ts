@@ -17,7 +17,7 @@ test.describe('Admin Product Management', () => {
 
   test('should access admin panel', async ({ page }) => {
     // Click admin link in header
-    await page.click('a[href="/admin"], text=Admin');
+    await page.click('a[href="/admin"]');
 
     // Should be on admin page
     await expect(page).toHaveURL(/\/admin/);
@@ -33,7 +33,7 @@ test.describe('Admin Product Management', () => {
     await expect(page.locator('h1')).toContainText(/Products|Manage Products/i);
 
     // Should have add product button
-    await expect(page.locator('text=Add Product, a[href*="new"]')).toBeVisible();
+    await expect(page.locator('text=Add Product')).toBeVisible();
   });
 
   test('should create new product', async ({ page }) => {
@@ -108,7 +108,7 @@ test.describe('Admin Product Management', () => {
     await page.goto('/admin/products');
 
     // Click edit on first product
-    const editButton = page.locator('[data-testid="edit-product"], button:has-text("Edit")').first();
+    const editButton = page.locator('[data-testid="edit-product"]').first();
     await editButton.click();
 
     // Should be on edit page

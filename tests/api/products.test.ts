@@ -56,9 +56,11 @@ describe('Products API', () => {
     });
 
     it('should filter by category', async () => {
-      // This would require a category to exist
-      const { status } = await apiRequest('/api/products?category=some-uuid');
+      // Test with a valid UUID format (non-existent category should return empty array)
+      const { status, data } = await apiRequest('/api/products?category=00000000-0000-0000-0000-000000000000');
       expect(status).toBe(200);
+      expect(Array.isArray(data)).toBe(true);
+      expect(data.length).toBe(0);
     });
 
     it('should search products by name', async () => {

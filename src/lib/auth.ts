@@ -1,7 +1,20 @@
 import { createServerSupabaseClient, supabaseAdmin } from "./supabase/server";
+import { headers } from "next/headers";
 
 export async function getUser() {
   const supabase = await createServerSupabaseClient();
+
+  // Check for Authorization header (for API testing with Bearer tokens)
+  const headersList = await headers();
+  const authHeader = headersList.get("authorization");
+
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.substring(7);
+    const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+    return user;
+  }
+
+  // Default: use cookie-based authentication
   const {
     data: { user },
   } = await supabase.auth.getUser();
