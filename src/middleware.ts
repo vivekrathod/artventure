@@ -8,9 +8,27 @@ export async function middleware(request: NextRequest) {
     },
   });
 
+  // Skip middleware if Supabase credentials are not configured
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  // Check if credentials are missing or contain placeholder values
+  if (
+    !supabaseUrl ||
+    !supabaseAnonKey ||
+    supabaseUrl === '' ||
+    supabaseAnonKey === '' ||
+    supabaseUrl.includes('your_supabase') ||
+    supabaseAnonKey.includes('your_supabase') ||
+    !supabaseUrl.startsWith('http')
+  ) {
+    console.warn('Supabase credentials not configured, skipping middleware');
+    return response;
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         get(name: string) {
