@@ -9,7 +9,8 @@
       "Bash(pkill:*)",
       "Bash(npx ts-node:*)",
       "Bash(npx tsx:*)",
-      "Bash(npx playwright test:*)"
+      "Bash(npx playwright test:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

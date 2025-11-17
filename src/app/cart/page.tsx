@@ -118,6 +118,8 @@ export default function CartPage() {
                                 )
                               }
                               className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                              aria-label="Decrease quantity"
+                              data-testid="decrease-quantity"
                             >
                               <Minus className="h-4 w-4" />
                             </button>
@@ -132,6 +134,8 @@ export default function CartPage() {
                                 )
                               }
                               className="px-3 py-1 text-gray-600 hover:bg-gray-100"
+                              aria-label="Increase quantity"
+                              data-testid="increase-quantity"
                             >
                               <Plus className="h-4 w-4" />
                             </button>

@@ -18,7 +18,7 @@
       - generic [ref=e24]:
         - generic [ref=e25]:
           - generic [ref=e26]: Email
-          - textbox "you@example.com" [ref=e27]: testuser17634006264195bhl60t3@test.local
+          - textbox "you@example.com" [ref=e27]: testuser1763400592199dpwtqzph@test.local
         - generic [ref=e28]:
           - generic [ref=e29]: Password
           - textbox "••••••••" [ref=e30]: TestPassword123!
@@ -26,9 +26,9 @@
       - button "Send Magic Link" [ref=e33]
       - paragraph [ref=e34]:
         - text: Don't have an account?
-        - link "Sign up" [ref=e35] [cursor=pointer]:
+        - link "Sign up" [ref=e35]:
           - /url: /auth/signup?redirectTo=/
   - button "Open Next.js Dev Tools" [ref=e41] [cursor=pointer]:
     - img [ref=e42]
-  - alert [ref=e45]
+  - alert [ref=e47]
 ```

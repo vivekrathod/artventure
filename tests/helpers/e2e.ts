@@ -41,14 +41,19 @@ export async function createAndSignInAdmin(page: Page) {
  * Sign out the current user
  */
 export async function signOut(page: Page) {
-  // Try to find and click sign out
-  const userMenu = page.locator('[data-testid="user-menu"], button:has-text("@")');
+  // Try to find user menu by email pattern (contains @)
+  const userMenuButton = page.locator('button').filter({ hasText: '@' }).first();
 
-  if (await userMenu.isVisible()) {
-    await userMenu.click();
-    await page.click('text=Sign Out');
-  } else {
-    // Navigate to sign out directly
+  try {
+    if (await userMenuButton.isVisible({ timeout: 2000 })) {
+      await userMenuButton.click();
+      await page.click('text=Sign Out');
+    } else {
+      // Navigate to sign out directly
+      await page.goto('/auth/signout');
+    }
+  } catch (e) {
+    // Fallback: navigate to sign out directly
     await page.goto('/auth/signout');
   }
 }

@@ -80,14 +80,14 @@ test.describe('Shopping Flow', () => {
     await expect(cartItems).toHaveCount(1, { timeout: 5000 });
 
     // Should show quantity controls
-    await expect(page.locator('button:has-text("+")')).toBeVisible();
-    await expect(page.locator('button:has-text("-")')).toBeVisible();
+    await expect(page.locator('[data-testid="increase-quantity"]')).toBeVisible();
+    await expect(page.locator('[data-testid="decrease-quantity"]')).toBeVisible();
 
     // Should show remove button
     await expect(page.locator('button:has-text("Remove")')).toBeVisible();
 
-    // Should show checkout button
-    await expect(page.locator('button:has-text("Checkout"), a:has-text("Checkout")')).toBeVisible();
+    // Should show checkout button (it's a link in this implementation)
+    await expect(page.locator('a:has-text("Checkout")')).toBeVisible();
 
     // Cleanup
     await cleanupUser(user.id);
@@ -117,7 +117,7 @@ test.describe('Shopping Flow', () => {
     const initialQuantity = await quantityDisplay.textContent();
 
     // Increase quantity
-    await page.locator('button:has-text("+")').first().click();
+    await page.locator('[data-testid="increase-quantity"]').first().click();
 
     // Wait for update
     await page.waitForTimeout(500);
@@ -174,17 +174,17 @@ test.describe('Shopping Flow', () => {
     // Go to cart
     await page.goto('/cart');
 
-    // Click checkout (it's a link, not a button)
-    await page.click('a:has-text("Checkout"), button:has-text("Checkout")');
+    // Click checkout (it's a link in this implementation)
+    await page.click('a:has-text("Checkout")');
 
     // Should be on checkout page
     await expect(page).toHaveURL(/\/checkout/);
 
-    // Should show order summary
-    await expect(page.locator('text=/Order Summary|Checkout/i')).toBeVisible();
+    // Should show order summary (use first() to avoid strict mode violation)
+    await expect(page.locator('text=/Order Summary|Checkout/i').first()).toBeVisible();
 
     // Should show payment button
-    await expect(page.locator('button:has-text("Proceed to Payment"), button:has-text("Payment"), button:has-text("Pay")')).toBeVisible();
+    await expect(page.locator('button:has-text("Proceed to Payment")')).toBeVisible();
 
     // Cleanup
     await cleanupUser(user.id);

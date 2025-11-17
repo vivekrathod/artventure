@@ -12,9 +12,9 @@
             - link [ref=e8] [cursor=pointer]:
               - /url: /cart
               - img [ref=e9]
-            - button "test-1763356705683@example.com" [ref=e14]:
+            - button "testuser1763400598537zbfe4d4e@test.local" [ref=e14]:
               - img [ref=e15]
-              - generic [ref=e19]: test-1763356705683@example.com
+              - generic [ref=e19]: testuser1763400598537zbfe4d4e@test.local
             - button [ref=e20]:
               - img [ref=e21]
     - main [ref=e22]:

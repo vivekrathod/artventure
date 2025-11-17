@@ -57,24 +57,56 @@ export async function createTestProduct(overrides: any = {}) {
 
 /**
  * Create a test user
+ * Uses admin API to bypass email validation
  */
 export async function createTestUser(email?: string) {
   const supabase = createTestSupabaseClient();
 
-  const testEmail = email || `test-${Date.now()}@example.com`;
+  // Use more unique email format with random string to avoid rate limits
+  const randomId = Math.random().toString(36).substring(2, 10);
+  const timestamp = Date.now();
+  const testEmail = email || `testuser${timestamp}${randomId}@test.local`;
   const password = 'TestPassword123!';
 
-  const { data, error } = await supabase.auth.admin.createUser({
-    email: testEmail,
-    password: password,
-    email_confirm: true,
-    user_metadata: {
-      full_name: 'Test User',
-    },
-  });
+  // Retry logic for rate limits
+  let retries = 3;
+  let lastError;
 
-  if (error) throw error;
-  return { user: data.user, password };
+  while (retries > 0) {
+    try {
+      const { data, error } = await supabase.auth.admin.createUser({
+        email: testEmail,
+        password: password,
+        email_confirm: true,
+        user_metadata: {
+          full_name: 'Test User',
+        },
+      });
+
+      if (error) {
+        lastError = error;
+        // If rate limited, wait and retry
+        if (error.message?.includes('rate') || error.message?.includes('too many')) {
+          retries--;
+          if (retries > 0) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            continue;
+          }
+        }
+        throw error;
+      }
+
+      return { user: data.user, password };
+    } catch (err) {
+      lastError = err;
+      retries--;
+      if (retries > 0) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+  }
+
+  throw lastError || new Error('Failed to create test user after retries');
 }
 
 /**
