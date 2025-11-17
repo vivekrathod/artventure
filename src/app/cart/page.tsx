@@ -34,7 +34,7 @@ export default function CartPage() {
           <div className="text-center">
             <ShoppingBag className="mx-auto h-24 w-24 text-gray-400" />
             <h1 className="mt-4 font-playfair text-3xl font-bold text-gray-900">
-              Your Cart is Empty
+              Your cart is empty
             </h1>
             <p className="mt-2 text-gray-600">
               Start shopping to add items to your cart
@@ -143,9 +143,10 @@ export default function CartPage() {
                             </p>
                             <button
                               onClick={() => handleRemoveItem(item.product.id)}
-                              className="text-red-600 hover:text-red-700"
+                              className="flex items-center gap-1 text-red-600 hover:text-red-700"
                             >
                               <Trash2 className="h-5 w-5" />
+                              <span className="text-sm">Remove</span>
                             </button>
                           </div>
                         </div>
@@ -186,7 +187,7 @@ export default function CartPage() {
                   href="/checkout"
                   className="mt-6 block w-full rounded-lg bg-rose-600 py-3 text-center text-white transition-colors hover:bg-rose-700"
                 >
-                  Proceed to Checkout
+                  Checkout
                 </Link>
 
                 <Link

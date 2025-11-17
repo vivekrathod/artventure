@@ -1,0 +1,106 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e6] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=e7]:
+      - img [ref=e8]
+    - generic [ref=e11]:
+      - button "Open issues overlay" [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e14]: "0"
+          - generic [ref=e15]: "1"
+        - generic [ref=e16]: Issue
+      - button "Collapse issues badge" [ref=e17]:
+        - img [ref=e18]
+  - generic [ref=e20]:
+    - banner [ref=e21]:
+      - navigation [ref=e22]:
+        - generic [ref=e23]:
+          - link "Artisan Beads" [ref=e24] [cursor=pointer]:
+            - /url: /
+          - generic [ref=e25]:
+            - link "1" [ref=e26] [cursor=pointer]:
+              - /url: /cart
+              - img [ref=e27]
+              - generic [ref=e31]: "1"
+            - button "test-1763356721140@example.com" [ref=e33]:
+              - img [ref=e34]
+              - generic [ref=e38]: test-1763356721140@example.com
+            - button [ref=e39]:
+              - img [ref=e40]
+    - main [ref=e41]:
+      - generic [ref=e43]:
+        - heading "Checkout" [level=1] [ref=e44]
+        - generic [ref=e45]:
+          - generic [ref=e46]:
+            - heading "Order Summary" [level=2] [ref=e47]
+            - generic [ref=e48]:
+              - generic [ref=e49]:
+                - generic [ref=e50]:
+                  - paragraph [ref=e51]: Image Test 1763356711264
+                  - paragraph [ref=e52]: "Quantity: 1"
+                - paragraph [ref=e53]: $29.99
+              - generic [ref=e55]:
+                - generic [ref=e56]: Total
+                - generic [ref=e57]: $29.99
+          - generic [ref=e58]:
+            - heading "Payment Information" [level=2] [ref=e59]
+            - paragraph [ref=e60]: You will be redirected to Stripe to complete your payment securely.
+            - list [ref=e61]:
+              - listitem [ref=e62]:
+                - img [ref=e63]
+                - text: Secure payment processing
+              - listitem [ref=e65]:
+                - img [ref=e66]
+                - text: Multiple payment methods accepted
+              - listitem [ref=e68]:
+                - img [ref=e69]
+                - text: Your information is encrypted
+          - generic [ref=e71]:
+            - link "Back to Cart" [ref=e72] [cursor=pointer]:
+              - /url: /cart
+            - button "Proceed to Payment" [ref=e73]
+    - contentinfo [ref=e74]:
+      - generic [ref=e75]:
+        - generic [ref=e76]:
+          - generic [ref=e77]:
+            - heading "Artisan Beads" [level=3] [ref=e78]
+            - paragraph [ref=e79]: Handcrafted beaded jewelry made with love and attention to detail. Each piece is unique and tells its own story.
+            - generic [ref=e80]:
+              - link [ref=e81] [cursor=pointer]:
+                - /url: https://facebook.com
+                - img [ref=e82]
+              - link [ref=e84] [cursor=pointer]:
+                - /url: https://instagram.com
+                - img [ref=e85]
+              - link [ref=e88] [cursor=pointer]:
+                - /url: https://twitter.com
+                - img [ref=e89]
+          - generic [ref=e91]:
+            - heading "Quick Links" [level=4] [ref=e92]
+            - list [ref=e93]:
+              - listitem [ref=e94]:
+                - link "Shop" [ref=e95] [cursor=pointer]:
+                  - /url: /products
+              - listitem [ref=e96]:
+                - link "About Us" [ref=e97] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=e98]:
+                - link "Contact" [ref=e99] [cursor=pointer]:
+                  - /url: /contact
+          - generic [ref=e100]:
+            - heading "Customer Service" [level=4] [ref=e101]
+            - list [ref=e102]:
+              - listitem [ref=e103]:
+                - link "My Account" [ref=e104] [cursor=pointer]:
+                  - /url: /account
+              - listitem [ref=e105]:
+                - link "Order History" [ref=e106] [cursor=pointer]:
+                  - /url: /account/orders
+              - listitem [ref=e107]:
+                - link "Care Instructions" [ref=e108] [cursor=pointer]:
+                  - /url: /care-instructions
+        - paragraph [ref=e110]: © 2025 Artisan Beads. All rights reserved.
+  - alert [ref=e111]
+```

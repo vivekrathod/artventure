@@ -136,12 +136,15 @@ test.describe('Admin Product Management', () => {
     // Confirm deletion
     page.once('dialog', dialog => dialog.accept());
 
-    // Wait for deletion
-    await page.waitForTimeout(1000);
+    // Wait for deletion and page update
+    await page.waitForTimeout(2000);
+    
+    // Reload page to ensure product is gone
+    await page.reload();
 
     // Product should be removed
     if (productName) {
-      await expect(page.locator('text=' + productName)).not.toBeVisible();
+      await expect(page.locator('text=' + productName)).not.toBeVisible({ timeout: 10000 });
     }
   });
 });

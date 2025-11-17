@@ -40,8 +40,10 @@ export default function SignUpPage() {
       // Check if user was auto-confirmed and signed in (e.g., in development/test mode)
       if (data.session) {
         toast.success("Account created successfully!");
+        // Use router for proper navigation
         router.push(redirectTo);
-        router.refresh();
+        // Force refresh after short delay
+        setTimeout(() => router.refresh(), 100);
       } else {
         // Email confirmation required
         toast.success("Check your email to confirm your account!");

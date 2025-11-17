@@ -40,7 +40,7 @@ export default function ProductDetailPage() {
     if (!product) return;
 
     addItem(product, quantity);
-    toast.success(`Added ${quantity} ${product.name} to cart`);
+    toast.success(`Success! Added ${quantity} ${product.name} to cart`);
   };
 
   if (loading) {

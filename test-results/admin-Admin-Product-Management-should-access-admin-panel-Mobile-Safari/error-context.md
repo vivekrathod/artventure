@@ -1,0 +1,101 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - navigation [ref=e4]:
+        - generic [ref=e5]:
+          - link "Artisan Beads" [ref=e6]:
+            - /url: /
+          - generic [ref=e7]:
+            - link [ref=e8]:
+              - /url: /cart
+              - img [ref=e9]
+            - button "test-1763356727197@example.com" [ref=e14]:
+              - img [ref=e15]
+              - generic [ref=e19]: test-1763356727197@example.com
+            - button [ref=e20]:
+              - img [ref=e21]
+    - main [ref=e22]:
+      - generic [ref=e25]:
+        - heading "Handcrafted Jewelry, Made with Love" [level=1] [ref=e26]:
+          - text: Handcrafted Jewelry,
+          - text: Made with Love
+        - paragraph [ref=e27]: Discover unique, artisan-crafted beaded jewelry. Each piece tells a story of meticulous craftsmanship and timeless elegance.
+        - generic [ref=e28]:
+          - link "Shop Now" [ref=e29]:
+            - /url: /products
+          - link "Our Story" [ref=e30]:
+            - /url: /about
+      - generic [ref=e33]:
+        - generic [ref=e34]:
+          - img [ref=e36]
+          - heading "Handcrafted Quality" [level=3] [ref=e39]
+          - paragraph [ref=e40]: Each piece is carefully handcrafted with premium materials
+        - generic [ref=e41]:
+          - img [ref=e43]
+          - heading "Made with Love" [level=3] [ref=e45]
+          - paragraph [ref=e46]: Every design is infused with passion and creativity
+        - generic [ref=e47]:
+          - img [ref=e49]
+          - heading "Fast Shipping" [level=3] [ref=e53]
+          - paragraph [ref=e54]: Secure packaging and quick delivery to your doorstep
+      - generic [ref=e56]:
+        - generic [ref=e57]:
+          - heading "Featured Collection" [level=2] [ref=e58]
+          - paragraph [ref=e59]: Discover our handpicked selection of signature pieces
+        - generic [ref=e60]:
+          - paragraph [ref=e61]: No featured products available at the moment.
+          - link "Browse all products" [ref=e62]:
+            - /url: /products
+      - generic [ref=e64]:
+        - heading "Ready to Find Your Perfect Piece?" [level=2] [ref=e65]
+        - paragraph [ref=e66]: Explore our full collection of handcrafted beaded jewelry
+        - link "Start Shopping" [ref=e67]:
+          - /url: /products
+    - contentinfo [ref=e68]:
+      - generic [ref=e69]:
+        - generic [ref=e70]:
+          - generic [ref=e71]:
+            - heading "Artisan Beads" [level=3] [ref=e72]
+            - paragraph [ref=e73]: Handcrafted beaded jewelry made with love and attention to detail. Each piece is unique and tells its own story.
+            - generic [ref=e74]:
+              - link [ref=e75]:
+                - /url: https://facebook.com
+                - img [ref=e76]
+              - link [ref=e78]:
+                - /url: https://instagram.com
+                - img [ref=e79]
+              - link [ref=e82]:
+                - /url: https://twitter.com
+                - img [ref=e83]
+          - generic [ref=e85]:
+            - heading "Quick Links" [level=4] [ref=e86]
+            - list [ref=e87]:
+              - listitem [ref=e88]:
+                - link "Shop" [ref=e89]:
+                  - /url: /products
+              - listitem [ref=e90]:
+                - link "About Us" [ref=e91]:
+                  - /url: /about
+              - listitem [ref=e92]:
+                - link "Contact" [ref=e93]:
+                  - /url: /contact
+          - generic [ref=e94]:
+            - heading "Customer Service" [level=4] [ref=e95]
+            - list [ref=e96]:
+              - listitem [ref=e97]:
+                - link "My Account" [ref=e98]:
+                  - /url: /account
+              - listitem [ref=e99]:
+                - link "Order History" [ref=e100]:
+                  - /url: /account/orders
+              - listitem [ref=e101]:
+                - link "Care Instructions" [ref=e102]:
+                  - /url: /care-instructions
+        - paragraph [ref=e104]: © 2025 Artisan Beads. All rights reserved.
+  - button "Open Next.js Dev Tools" [ref=e110] [cursor=pointer]:
+    - img [ref=e111]
+  - alert [ref=e116]
+```

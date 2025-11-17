@@ -110,6 +110,13 @@ export async function DELETE(
     await requireAdmin();
     const { id } = await params;
 
+    // First delete associated product images (cascade should handle this, but being explicit)
+    await supabaseAdmin
+      .from("product_images")
+      .delete()
+      .eq("product_id", id);
+
+    // Then delete the product
     const { error } = await supabaseAdmin
       .from("products")
       .delete()

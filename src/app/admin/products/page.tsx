@@ -45,7 +45,10 @@ export default function AdminProductsPage() {
 
       if (res.ok) {
         toast.success("Product deleted successfully");
-        fetchProducts();
+        // Remove the deleted product from state immediately
+        setProducts(products.filter(p => p.id !== id));
+        // Also refetch to ensure consistency
+        await fetchProducts();
       } else {
         toast.error("Failed to delete product");
       }

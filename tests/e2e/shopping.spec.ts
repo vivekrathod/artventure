@@ -62,6 +62,12 @@ test.describe('Shopping Flow', () => {
     await page.goto('/products');
     await page.locator('[data-testid="product-card"]').first().click();
     await page.click('button:has-text("Add to Cart")');
+    
+    // Wait for success message to ensure item was added
+    await expect(page.locator('text=/Added to cart|Success/i')).toBeVisible({ timeout: 5000 });
+    
+    // Wait a bit for localStorage to update
+    await page.waitForTimeout(500);
 
     // Go to cart
     await page.goto('/cart');
@@ -95,6 +101,10 @@ test.describe('Shopping Flow', () => {
     await page.goto('/products');
     await page.locator('[data-testid="product-card"]').first().click();
     await page.click('button:has-text("Add to Cart")');
+    
+    // Wait for success message
+    await expect(page.locator('text=/Added to cart|Success/i')).toBeVisible({ timeout: 5000 });
+    await page.waitForTimeout(500);
 
     // Go to cart
     await page.goto('/cart');
@@ -128,6 +138,10 @@ test.describe('Shopping Flow', () => {
     await page.goto('/products');
     await page.locator('[data-testid="product-card"]').first().click();
     await page.click('button:has-text("Add to Cart")');
+    
+    // Wait for success message
+    await expect(page.locator('text=/Added to cart|Success/i')).toBeVisible({ timeout: 5000 });
+    await page.waitForTimeout(500);
 
     // Go to cart
     await page.goto('/cart');
@@ -135,8 +149,8 @@ test.describe('Shopping Flow', () => {
     // Remove item
     await page.click('button:has-text("Remove")');
 
-    // Cart should be empty
-    await expect(page.locator('text=/empty|no items/i')).toBeVisible({
+    // Cart should be empty (use first() to handle multiple matches)
+    await expect(page.locator('text=/empty/i').first()).toBeVisible({
       timeout: 5000,
     });
 
@@ -152,12 +166,16 @@ test.describe('Shopping Flow', () => {
     await page.goto('/products');
     await page.locator('[data-testid="product-card"]').first().click();
     await page.click('button:has-text("Add to Cart")');
+    
+    // Wait for success message
+    await expect(page.locator('text=/Added to cart|Success/i')).toBeVisible({ timeout: 5000 });
+    await page.waitForTimeout(500);
 
     // Go to cart
     await page.goto('/cart');
 
-    // Click checkout
-    await page.click('button:has-text("Checkout")');
+    // Click checkout (it's a link, not a button)
+    await page.click('a:has-text("Checkout"), button:has-text("Checkout")');
 
     // Should be on checkout page
     await expect(page).toHaveURL(/\/checkout/);

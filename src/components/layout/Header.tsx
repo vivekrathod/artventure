@@ -86,6 +86,14 @@ export default function Header() {
             >
               Contact
             </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="text-gray-700 transition-colors hover:text-rose-600"
+              >
+                Admin
+              </Link>
+            )}
           </div>
 
           {/* Right Side Icons */}
@@ -111,7 +119,7 @@ export default function Header() {
                   className="flex items-center gap-2 rounded-lg px-3 py-2 text-gray-700 transition-colors hover:bg-gray-100"
                 >
                   <UserCircle className="h-6 w-6" />
-                  <span className="hidden md:inline text-sm">
+                  <span className="text-sm">
                     {user.email}
                   </span>
                 </button>
@@ -199,6 +207,15 @@ export default function Header() {
               >
                 Contact
               </Link>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="text-gray-700 transition-colors hover:text-rose-600"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Admin
+                </Link>
+              )}
             </div>
           </div>
         )}
