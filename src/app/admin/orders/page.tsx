@@ -10,6 +10,9 @@ export default function AdminOrdersPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<OrderWithItems[]>([]);
   const [loading, setLoading] = useState(true);
+  const [trackingModalOpen, setTrackingModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<OrderWithItems | null>(null);
+  const [trackingNumber, setTrackingNumber] = useState("");
 
   useEffect(() => {
     fetchOrders();
@@ -33,11 +36,32 @@ export default function AdminOrdersPage() {
   };
 
   const handleStatusUpdate = async (orderId: string, newStatus: string) => {
+    // If changing to shipped, show tracking number modal
+    if (newStatus === "shipped") {
+      const order = orders.find((o) => o.id === orderId);
+      if (order) {
+        setSelectedOrder(order);
+        setTrackingNumber(order.tracking_number || "");
+        setTrackingModalOpen(true);
+        return;
+      }
+    }
+
+    // For other status changes, update directly
+    await updateOrderStatus(orderId, newStatus);
+  };
+
+  const updateOrderStatus = async (orderId: string, newStatus: string, trackingNum?: string) => {
     try {
+      const body: any = { status: newStatus };
+      if (trackingNum !== undefined) {
+        body.tracking_number = trackingNum;
+      }
+
       const res = await fetch(`/api/admin/orders/${orderId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify(body),
       });
 
       if (res.ok) {
@@ -50,6 +74,15 @@ export default function AdminOrdersPage() {
       console.error("Error updating order:", error);
       toast.error("Failed to update order status");
     }
+  };
+
+  const handleTrackingSubmit = async () => {
+    if (!selectedOrder) return;
+
+    await updateOrderStatus(selectedOrder.id, "shipped", trackingNumber);
+    setTrackingModalOpen(false);
+    setSelectedOrder(null);
+    setTrackingNumber("");
   };
 
   const getStatusColor = (status: string) => {
@@ -194,12 +227,71 @@ export default function AdminOrdersPage() {
                       </p>
                     </div>
                   )}
+
+                  {/* Tracking Number Display */}
+                  {order.tracking_number && (
+                    <div className="mt-4 border-t pt-4">
+                      <h4 className="text-sm font-semibold text-gray-900">
+                        Tracking Number
+                      </h4>
+                      <p className="mt-2 text-sm font-mono text-gray-600">
+                        {order.tracking_number}
+                      </p>
+                    </div>
+                  )}
                 </div>
               ))
             )}
           </div>
         </div>
       </div>
+
+      {/* Tracking Number Modal */}
+      {trackingModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <h3 className="mb-4 text-xl font-semibold text-gray-900">
+              Add Tracking Number
+            </h3>
+            <p className="mb-4 text-sm text-gray-600">
+              Order #{selectedOrder?.order_number}
+            </p>
+            <div className="mb-4">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Tracking Number (Optional)
+              </label>
+              <input
+                type="text"
+                value={trackingNumber}
+                onChange={(e) => setTrackingNumber(e.target.value)}
+                placeholder="e.g., 1Z999AA10123456784"
+                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                You can skip this and add it later if needed
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setTrackingModalOpen(false);
+                  setSelectedOrder(null);
+                  setTrackingNumber("");
+                }}
+                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleTrackingSubmit}
+                className="flex-1 rounded-lg bg-rose-600 px-4 py-2 text-white transition-colors hover:bg-rose-700"
+              >
+                Mark as Shipped
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </MainLayout>
   );
 }
