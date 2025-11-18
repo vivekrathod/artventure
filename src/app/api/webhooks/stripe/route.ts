@@ -137,7 +137,7 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
           phone: sess.customer_details?.phone || "",
         };
 
-    // Create order in database
+    // Create order in database with 'paid' status since payment was successful
     const { data: order, error: orderError } = await supabaseAdmin
       .from("orders")
       // @ts-expect-error - Supabase type inference issue with generated types
@@ -150,7 +150,7 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
         tax_amount: taxAmount,
         total_amount: totalAmount,
         stripe_payment_id: sess.payment_intent as string,
-        status: "pending",
+        status: "processing", // Payment succeeded, order is now being processed
       })
       .select()
       .single();
