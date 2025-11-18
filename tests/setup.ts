@@ -32,8 +32,22 @@ beforeAll(async () => {
   }
 });
 
-afterAll(() => {
+afterAll(async () => {
   console.log('✅ Test suite completed');
+
+  // Cleanup test data after tests complete
+  try {
+    console.log('🧹 Cleaning up test data...');
+    await cleanupTestData();
+    console.log('✨ Test data cleaned');
+  } catch (error: any) {
+    // Network issues are common in CI environments, log but continue
+    if (error.code === 'EAI_AGAIN' || error.message?.includes('fetch failed')) {
+      console.warn('⚠️  Network unavailable for cleanup, skipping...');
+    } else {
+      console.error('Error during cleanup:', error.message);
+    }
+  }
 });
 
 afterEach(() => {
