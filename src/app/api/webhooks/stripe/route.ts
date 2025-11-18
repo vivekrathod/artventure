@@ -44,17 +44,23 @@ export async function POST(request: NextRequest) {
         break;
 
       case "payment_intent.succeeded":
-        // Optional: Handle successful payment intent
-        console.log("Payment intent succeeded:", event.data.object.id);
+        console.log("✓ Payment intent succeeded:", event.data.object.id);
         break;
 
       case "payment_intent.payment_failed":
-        // Optional: Handle failed payment
-        console.log("Payment intent failed:", event.data.object.id);
+        console.error("✗ Payment intent failed:", event.data.object.id);
+        break;
+
+      // These events are informational and don't require action
+      case "charge.succeeded":
+      case "charge.updated":
+      case "payment_intent.created":
+        // Silently ignore - these are handled by checkout.session.completed
         break;
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        // Log unexpected event types for debugging
+        console.log(`ℹ Received unhandled event type: ${event.type}`);
     }
 
     return NextResponse.json({ received: true });
