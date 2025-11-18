@@ -5,7 +5,9 @@ import { OrderWithItems } from "@/types/database";
 // The actual runtime will fail if RESEND_API_KEY is not set when called
 const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder_for_build');
 
-const FROM_EMAIL = "ArtVenture <orders@artventure.com>";
+// Use onboarding email for testing, or your verified domain
+// Change to your verified domain once you have one: "ArtVenture <orders@yourdomain.com>"
+const FROM_EMAIL = process.env.FROM_EMAIL || "onboarding@resend.dev";
 
 // ============================================================================
 // ORDER CONFIRMATION EMAIL
@@ -103,14 +105,21 @@ export async function sendOrderConfirmation(order: OrderWithItems) {
   `;
 
   try {
-    await resend.emails.send({
+    const result = await resend.emails.send({
       from: FROM_EMAIL,
       to: order.email,
       subject: `Order Confirmation #${order.order_number}`,
       html,
     });
+
+    console.log("Email sent successfully:", {
+      emailId: result.data?.id,
+      to: order.email,
+      from: FROM_EMAIL
+    });
   } catch (error) {
     console.error("Error sending order confirmation email:", error);
+    throw error; // Re-throw so webhook handler logs it
   }
 }
 
