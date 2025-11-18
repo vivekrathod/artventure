@@ -8,6 +8,14 @@ const FREE_SHIPPING_THRESHOLD = parseFloat(process.env.FREE_SHIPPING_THRESHOLD |
 
 export async function POST(request: NextRequest) {
   try {
+    // Validate Stripe is configured
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return NextResponse.json(
+        { error: "Payment system not configured" },
+        { status: 500 }
+      );
+    }
+
     const user = await getUser();
     const { items, successUrl, cancelUrl } = await request.json();
 

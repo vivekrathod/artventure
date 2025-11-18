@@ -1,7 +1,9 @@
 import { Resend } from "resend";
 import { OrderWithItems } from "@/types/database";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Allow build to proceed without Resend configured
+// The actual runtime will fail if RESEND_API_KEY is not set when called
+const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder_for_build');
 
 const FROM_EMAIL = "ArtVenture <orders@artventure.com>";
 
@@ -9,6 +11,12 @@ const FROM_EMAIL = "ArtVenture <orders@artventure.com>";
 // ORDER CONFIRMATION EMAIL
 // ============================================================================
 export async function sendOrderConfirmation(order: OrderWithItems) {
+  // Skip if Resend is not configured
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY not configured, skipping order confirmation email');
+    return;
+  }
+
   const itemsHtml = order.order_items
     .map(
       (item) => `
@@ -110,6 +118,12 @@ export async function sendOrderConfirmation(order: OrderWithItems) {
 // ORDER PROCESSING EMAIL
 // ============================================================================
 export async function sendOrderProcessing(order: OrderWithItems) {
+  // Skip if Resend is not configured
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY not configured, skipping order processing email');
+    return;
+  }
+
   const html = `
 <!DOCTYPE html>
 <html>
@@ -160,6 +174,12 @@ export async function sendOrderProcessing(order: OrderWithItems) {
 // ORDER SHIPPED EMAIL
 // ============================================================================
 export async function sendOrderShipped(order: OrderWithItems) {
+  // Skip if Resend is not configured
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY not configured, skipping order shipped email');
+    return;
+  }
+
   const html = `
 <!DOCTYPE html>
 <html>
@@ -228,6 +248,11 @@ export async function sendContactFormEmail(data: {
   subject: string;
   message: string;
 }) {
+  // Fail if Resend is not configured (contact form should not proceed)
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('Email service not configured');
+  }
+
   const html = `
 <!DOCTYPE html>
 <html>
