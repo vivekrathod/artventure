@@ -6,7 +6,7 @@ import { OrderWithItems } from "@/types/database";
 const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder_for_build');
 
 // Use onboarding email for testing, or your verified domain
-// Change to your verified domain once you have one: "ArtVenture <orders@yourdomain.com>"
+// Change to your verified domain once you have one: "ArtVenture <orders@sukusartventure.com>"
 const FROM_EMAIL = process.env.FROM_EMAIL || "onboarding@resend.dev";
 
 // ============================================================================
@@ -97,7 +97,7 @@ export async function sendOrderConfirmation(order: OrderWithItems) {
   </div>
 
   <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
-    <p>Need help? Contact us at <a href="mailto:support@artventure.com" style="color: #be123c;">support@artventure.com</a></p>
+    <p>Need help? Contact us at <a href="mailto:support@sukusartventure.com" style="color: #be123c;">support@sukusartventure.com</a></p>
     <p style="margin-top: 20px;">&copy; ${new Date().getFullYear()} ArtVenture. All rights reserved.</p>
   </div>
 </body>
@@ -161,7 +161,7 @@ export async function sendOrderProcessing(order: OrderWithItems) {
   </div>
 
   <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
-    <p>Need help? Contact us at <a href="mailto:support@artventure.com" style="color: #be123c;">support@artventure.com</a></p>
+    <p>Need help? Contact us at <a href="mailto:support@sukusartventure.com" style="color: #be123c;">support@sukusartventure.com</a></p>
   </div>
 </body>
 </html>
@@ -230,7 +230,7 @@ export async function sendOrderShipped(order: OrderWithItems) {
   </div>
 
   <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
-    <p>Need help? Contact us at <a href="mailto:support@artventure.com" style="color: #be123c;">support@artventure.com</a></p>
+    <p>Need help? Contact us at <a href="mailto:support@sukusartventure.com" style="color: #be123c;">support@sukusartventure.com</a></p>
   </div>
 </body>
 </html>
@@ -283,7 +283,7 @@ export async function sendContactFormEmail(data: {
   try {
     await resend.emails.send({
       from: FROM_EMAIL,
-      to: "support@artventure.com", // Your support email
+      to: "support@sukusartventure.com", // Your support email
       replyTo: data.email,
       subject: `Contact Form: ${data.subject}`,
       html,
