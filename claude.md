@@ -1,4 +1,4 @@
-# Claude Knowledge Base - Artisan Beads E-Commerce Platform
+# Claude Knowledge Base - ArtVenture E-Commerce Platform
 
 This document contains comprehensive technical knowledge about the handmade jewelry e-commerce platform built for 100% FREE-tier deployment.
 

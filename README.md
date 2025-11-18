@@ -1,4 +1,4 @@
-# Artisan Beads - Handmade Jewelry E-Commerce (MVP - Cost-Optimized)
+# ArtVenture - Handmade Jewelry E-Commerce (MVP - Cost-Optimized)
 
 A modern, elegant e-commerce website for selling handmade beaded jewelry built with a **100% FREE-tier** technology stack.
 

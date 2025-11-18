@@ -1,6 +1,6 @@
 # Test Suite Documentation
 
-This directory contains comprehensive automated tests for the Artisan Beads e-commerce platform.
+This directory contains comprehensive automated tests for the ArtVenture e-commerce platform.
 
 ## Test Structure
 

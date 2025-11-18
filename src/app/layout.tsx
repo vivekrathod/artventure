@@ -16,11 +16,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Artisan Beaded Jewelry | Handcrafted with Love",
-  description: "Discover unique, handcrafted beaded jewelry. Each piece is carefully crafted with premium materials and attention to detail.",
-  keywords: "handmade jewelry, beaded jewelry, artisan jewelry, handcrafted accessories",
+  title: "ArtVenture | Handcrafted Beaded Jewelry",
+  description: "Discover unique, handcrafted beaded jewelry at ArtVenture. Each piece is carefully crafted with premium materials and attention to detail.",
+  keywords: "handmade jewelry, beaded jewelry, artisan jewelry, handcrafted accessories, ArtVenture",
   openGraph: {
-    title: "Artisan Beaded Jewelry",
+    title: "ArtVenture - Handcrafted Beaded Jewelry",
     description: "Handcrafted beaded jewelry made with love",
     type: "website",
   },

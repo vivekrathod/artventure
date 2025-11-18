@@ -3,7 +3,7 @@ import { OrderWithItems } from "@/types/database";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM_EMAIL = "Artisan Beads <orders@artisanbeads.com>";
+const FROM_EMAIL = "ArtVenture <orders@artventure.com>";
 
 // ============================================================================
 // ORDER CONFIRMATION EMAIL
@@ -36,7 +36,7 @@ export async function sendOrderConfirmation(order: OrderWithItems) {
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="background: linear-gradient(135deg, #fdf2f8 0%, #fef3c7 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
-    <h1 style="color: #be123c; margin: 0; font-size: 32px; font-family: serif;">Artisan Beads</h1>
+    <h1 style="color: #be123c; margin: 0; font-size: 32px; font-family: serif;">ArtVenture</h1>
     <p style="color: #666; margin: 10px 0 0;">Handcrafted with Love</p>
   </div>
 
@@ -87,8 +87,8 @@ export async function sendOrderConfirmation(order: OrderWithItems) {
   </div>
 
   <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
-    <p>Need help? Contact us at <a href="mailto:support@artisanbeads.com" style="color: #be123c;">support@artisanbeads.com</a></p>
-    <p style="margin-top: 20px;">&copy; ${new Date().getFullYear()} Artisan Beads. All rights reserved.</p>
+    <p>Need help? Contact us at <a href="mailto:support@artventure.com" style="color: #be123c;">support@artventure.com</a></p>
+    <p style="margin-top: 20px;">&copy; ${new Date().getFullYear()} ArtVenture. All rights reserved.</p>
   </div>
 </body>
 </html>
@@ -119,7 +119,7 @@ export async function sendOrderProcessing(order: OrderWithItems) {
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="background: linear-gradient(135deg, #fdf2f8 0%, #fef3c7 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
-    <h1 style="color: #be123c; margin: 0; font-size: 32px; font-family: serif;">Artisan Beads</h1>
+    <h1 style="color: #be123c; margin: 0; font-size: 32px; font-family: serif;">ArtVenture</h1>
   </div>
 
   <div style="background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -138,7 +138,7 @@ export async function sendOrderProcessing(order: OrderWithItems) {
   </div>
 
   <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
-    <p>Need help? Contact us at <a href="mailto:support@artisanbeads.com" style="color: #be123c;">support@artisanbeads.com</a></p>
+    <p>Need help? Contact us at <a href="mailto:support@artventure.com" style="color: #be123c;">support@artventure.com</a></p>
   </div>
 </body>
 </html>
@@ -169,7 +169,7 @@ export async function sendOrderShipped(order: OrderWithItems) {
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
   <div style="background: linear-gradient(135deg, #fdf2f8 0%, #fef3c7 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 30px;">
-    <h1 style="color: #be123c; margin: 0; font-size: 32px; font-family: serif;">Artisan Beads</h1>
+    <h1 style="color: #be123c; margin: 0; font-size: 32px; font-family: serif;">ArtVenture</h1>
   </div>
 
   <div style="background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
@@ -201,7 +201,7 @@ export async function sendOrderShipped(order: OrderWithItems) {
   </div>
 
   <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
-    <p>Need help? Contact us at <a href="mailto:support@artisanbeads.com" style="color: #be123c;">support@artisanbeads.com</a></p>
+    <p>Need help? Contact us at <a href="mailto:support@artventure.com" style="color: #be123c;">support@artventure.com</a></p>
   </div>
 </body>
 </html>
@@ -249,7 +249,7 @@ export async function sendContactFormEmail(data: {
   try {
     await resend.emails.send({
       from: FROM_EMAIL,
-      to: "support@artisanbeads.com", // Your support email
+      to: "support@artventure.com", // Your support email
       replyTo: data.email,
       subject: `Contact Form: ${data.subject}`,
       html,

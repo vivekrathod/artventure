@@ -9,7 +9,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <h3 className="font-playfair text-2xl font-bold text-gray-900">
-              Artisan Beads
+              ArtVenture
             </h3>
             <p className="mt-4 text-gray-600">
               Handcrafted beaded jewelry made with love and attention to detail.
@@ -108,7 +108,7 @@ export default function Footer() {
 
         <div className="mt-8 border-t pt-8 text-center text-gray-600">
           <p>
-            &copy; {new Date().getFullYear()} Artisan Beads. All rights
+            &copy; {new Date().getFullYear()} ArtVenture. All rights
             reserved.
           </p>
         </div>

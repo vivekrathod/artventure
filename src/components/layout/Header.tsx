@@ -63,7 +63,7 @@ export default function Header() {
             href="/"
             className="font-playfair text-2xl font-bold text-gray-900"
           >
-            Artisan Beads
+            ArtVenture
           </Link>
 
           {/* Desktop Navigation */}

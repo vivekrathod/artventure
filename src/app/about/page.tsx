@@ -21,7 +21,7 @@ export default function AboutPage() {
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="prose prose-lg max-w-none">
             <p className="text-lg leading-relaxed text-gray-700">
-              Welcome to Artisan Beads, where every piece of jewelry tells a
+              Welcome to ArtVenture, where every piece of jewelry tells a
               unique story. What started as a passion for creating beautiful,
               handcrafted accessories has blossomed into a journey of artistry
               and dedication to quality craftsmanship.

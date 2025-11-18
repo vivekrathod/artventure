@@ -1,6 +1,6 @@
 # GitHub Actions CI/CD Workflows
 
-This directory contains automated CI/CD workflows for the Artisan Beads e-commerce platform.
+This directory contains automated CI/CD workflows for the ArtVenture e-commerce platform.
 
 ## Workflows
 
