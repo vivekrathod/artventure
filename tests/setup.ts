@@ -16,9 +16,20 @@ global.fetch = global.fetch || fetch;
 
 beforeAll(async () => {
   console.log('🧪 Test suite starting...');
-  console.log('🧹 Cleaning up old test data...');
-  await cleanupTestData();
-  console.log('✨ Test data cleaned');
+
+  // Try to cleanup test data, but don't fail if network is unavailable
+  try {
+    console.log('🧹 Cleaning up old test data...');
+    await cleanupTestData();
+    console.log('✨ Test data cleaned');
+  } catch (error: any) {
+    // Network issues are common in CI environments, log but continue
+    if (error.code === 'EAI_AGAIN' || error.message?.includes('fetch failed')) {
+      console.warn('⚠️  Network unavailable for cleanup, skipping...');
+    } else {
+      console.error('Error during cleanup:', error.message);
+    }
+  }
 });
 
 afterAll(() => {

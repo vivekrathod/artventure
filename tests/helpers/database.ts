@@ -148,24 +148,46 @@ export async function deleteTestUser(userId: string) {
 
 /**
  * Clean up all test data
+ * Gracefully handles network errors (common in CI environments)
  */
 export async function cleanupTestData() {
-  const supabase = createTestSupabaseClient();
+  try {
+    const supabase = createTestSupabaseClient();
 
-  // Delete test products (with 'test-product' in slug)
-  await supabase
-    .from('products')
-    .delete()
-    .like('slug', 'test-product%');
-
-  // Delete test users (with 'test-' in email)
-  const { data: users } = await supabase.auth.admin.listUsers();
-
-  if (users?.users) {
-    for (const user of users.users) {
-      if (user.email?.startsWith('test-')) {
-        await supabase.auth.admin.deleteUser(user.id);
+    // Delete test products (with 'test-product' in slug)
+    try {
+      await supabase
+        .from('products')
+        .delete()
+        .like('slug', 'test-product%');
+    } catch (error: any) {
+      // Ignore network errors
+      if (!error.message?.includes('fetch failed')) {
+        console.warn('Error cleaning test products:', error.message);
       }
+    }
+
+    // Delete test users (with 'test-' in email)
+    try {
+      const { data: users } = await supabase.auth.admin.listUsers();
+
+      if (users?.users) {
+        for (const user of users.users) {
+          if (user.email?.startsWith('test-')) {
+            await supabase.auth.admin.deleteUser(user.id);
+          }
+        }
+      }
+    } catch (error: any) {
+      // Ignore network errors
+      if (!error.message?.includes('fetch failed')) {
+        console.warn('Error cleaning test users:', error.message);
+      }
+    }
+  } catch (error: any) {
+    // Silently ignore network connectivity issues
+    if (!error.message?.includes('fetch failed') && error.code !== 'EAI_AGAIN') {
+      console.warn('Error during test cleanup:', error.message);
     }
   }
 }
