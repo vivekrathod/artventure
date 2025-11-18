@@ -1131,7 +1131,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...                 # From CLI or Dashboard
 # Resend Email (resend.com > API Keys)
 RESEND_API_KEY=re_...                    # SECRET!
 FROM_EMAIL=onboarding@resend.dev        # Or verified domain
-CONTACT_EMAIL=admin@yourdomain.com      # Where contact form goes
+CONTACT_EMAIL=admin@sukusartventure.com      # Where contact form goes
 
 # Shipping Configuration
 FLAT_SHIPPING_RATE=5.99
@@ -1150,10 +1150,10 @@ STRIPE_SECRET_KEY=sk_live_...
 STRIPE_WEBHOOK_SECRET=whsec_...  # From production webhook
 
 # Verified sending domain
-FROM_EMAIL=orders@yourdomain.com
+FROM_EMAIL=orders@sukusartventure.com
 
 # Production URL
-NEXT_PUBLIC_APP_URL=https://yourdomain.com
+NEXT_PUBLIC_APP_URL=https://sukusartventure.com
 ```
 
 ### GitHub Actions Secrets
@@ -1300,7 +1300,7 @@ WHERE u.email = 'your@email.com';
 # Ensure .env.local has correct URL
 NEXT_PUBLIC_APP_URL=http://localhost:3000  # Local
 # OR
-NEXT_PUBLIC_APP_URL=https://yourdomain.com  # Production
+NEXT_PUBLIC_APP_URL=https://sukusartventure.com  # Production
 
 # Restart dev server
 npm run dev
@@ -1383,7 +1383,7 @@ WHERE schemaname = 'public';
 
 -- 5. Create first admin user (after signup)
 UPDATE profiles SET is_admin = true
-WHERE user_id = (SELECT id FROM auth.users WHERE email = 'admin@yourdomain.com');
+WHERE user_id = (SELECT id FROM auth.users WHERE email = 'admin@sukusartventure.com');
 ```
 
 **Storage Configuration:**
@@ -1395,8 +1395,8 @@ WHERE user_id = (SELECT id FROM auth.users WHERE email = 'admin@yourdomain.com')
 
 **Authentication Configuration:**
 1. Go to Authentication > URL Configuration
-   - Site URL: `https://yourdomain.com`
-   - Redirect URLs: `https://yourdomain.com/**`
+   - Site URL: `https://sukusartventure.com`
+   - Redirect URLs: `https://sukusartventure.com/**`
 2. Go to Authentication > Providers
    - Enable Email
    - Configure Google OAuth (production client ID/secret)
@@ -1414,7 +1414,7 @@ WHERE user_id = (SELECT id FROM auth.users WHERE email = 'admin@yourdomain.com')
 #    - Copy Secret Key: sk_live_...
 
 # 3. Go to Developers > Webhooks > Add endpoint
-#    Endpoint URL: https://yourdomain.com/api/webhooks/stripe
+#    Endpoint URL: https://sukusartventure.com/api/webhooks/stripe
 #    Events to send:
 #      - checkout.session.completed
 #      - payment_intent.succeeded
@@ -1426,7 +1426,7 @@ WHERE user_id = (SELECT id FROM auth.users WHERE email = 'admin@yourdomain.com')
 #    Configure tax collection for your jurisdictions
 
 # 5. Test webhook
-stripe listen --forward-to https://yourdomain.com/api/webhooks/stripe
+stripe listen --forward-to https://sukusartventure.com/api/webhooks/stripe
 stripe trigger checkout.session.completed
 ```
 
@@ -1436,7 +1436,7 @@ stripe trigger checkout.session.completed
 # 1. Go to resend.com
 
 # 2. Domains > Add Domain
-#    Domain: yourdomain.com
+#    Domain: sukusartventure.com
 #
 # 3. Add DNS records (in your domain registrar):
 #    TXT: resend._domainkey  (for DKIM)
@@ -1450,8 +1450,8 @@ stripe trigger checkout.session.completed
 #    Copy: re_...
 
 # 6. Update email addresses in code:
-#    FROM_EMAIL=orders@yourdomain.com
-#    CONTACT_EMAIL=support@yourdomain.com
+#    FROM_EMAIL=orders@sukusartventure.com
+#    CONTACT_EMAIL=support@sukusartventure.com
 ```
 
 #### 4. Deploy to Vercel
@@ -1479,7 +1479,7 @@ git push origin main
 **Production Environment Variables:**
 ```bash
 # Application
-NEXT_PUBLIC_APP_URL=https://yourdomain.com
+NEXT_PUBLIC_APP_URL=https://sukusartventure.com
 
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
@@ -1493,8 +1493,8 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 
 # Resend
 RESEND_API_KEY=re_...
-FROM_EMAIL=orders@yourdomain.com
-CONTACT_EMAIL=support@yourdomain.com
+FROM_EMAIL=orders@sukusartventure.com
+CONTACT_EMAIL=support@sukusartventure.com
 
 # Shipping
 FLAT_SHIPPING_RATE=5.99
@@ -1549,7 +1549,7 @@ STRIPE_TAX_ENABLED=true
 
 ```bash
 # 1. Vercel > Project > Settings > Domains
-# 2. Add domain: yourdomain.com
+# 2. Add domain: sukusartventure.com
 # 3. Configure DNS:
 #    - A record: 76.76.21.21
 #    - CNAME www: cname.vercel-dns.com
@@ -1557,7 +1557,7 @@ STRIPE_TAX_ENABLED=true
 # 4. Wait for DNS propagation (5-60 minutes)
 
 # 5. Update environment variables:
-#    NEXT_PUBLIC_APP_URL=https://yourdomain.com
+#    NEXT_PUBLIC_APP_URL=https://sukusartventure.com
 
 # 6. Redeploy
 
