@@ -21,7 +21,10 @@ export async function PUT(
       .single();
 
     // Update order
-    const updateData: any = { status };
+    const updateData: {
+      status: string;
+      tracking_number?: string;
+    } = { status };
     if (tracking_number !== undefined) {
       updateData.tracking_number = tracking_number;
     }
