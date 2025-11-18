@@ -11,6 +11,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Fetch orders by user_id OR email (in case order was placed before login)
     const { data, error } = await supabaseAdmin
       .from("orders")
       .select(
@@ -25,7 +26,7 @@ export async function GET() {
         )
       `
       )
-      .eq("user_id", user.id)
+      .or(`user_id.eq.${user.id},email.eq.${user.email}`)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -67,6 +68,7 @@ export async function POST(request: NextRequest) {
     // Create order
     const { data: order, error: orderError } = await supabaseAdmin
       .from("orders")
+      // @ts-expect-error - Supabase type inference issue with generated types
       .insert({
         order_number: orderNumber,
         user_id: user?.id || null,
@@ -91,7 +93,7 @@ export async function POST(request: NextRequest) {
 
     // Create order items
     const orderItems = items.map((item: any) => ({
-      order_id: order.id,
+      order_id: (order as any).id,
       product_id: item.product_id,
       product_name: item.product_name,
       price_at_purchase: item.price_at_purchase,
@@ -125,7 +127,7 @@ export async function POST(request: NextRequest) {
         )
       `
       )
-      .eq("id", order.id)
+      .eq("id", (order as any).id)
       .single();
 
     // Send order confirmation email

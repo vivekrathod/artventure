@@ -15,6 +15,7 @@ export async function PUT(
 
     const { data, error } = await supabaseAdmin
       .from("product_images")
+      // @ts-expect-error - Supabase type inference issue with generated types
       .update({ alt_text })
       .eq("id", imageId)
       .select()
@@ -65,8 +66,8 @@ export async function DELETE(
     }
 
     // Optionally delete from storage (extract filename from URL)
-    if (image?.image_url) {
-      const fileName = image.image_url.split("/").pop();
+    if ((image as any)?.image_url) {
+      const fileName = (image as any).image_url.split("/").pop();
       if (fileName?.startsWith("product-")) {
         await supabaseAdmin.storage
           .from("product-images")

@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
 import { useCartStore } from "@/store/cart";
 import { CheckCircle } from "lucide-react";
 import Link from "next/link";
 
-export default function CheckoutSuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const clearCart = useCartStore((state) => state.clearCart);
@@ -52,5 +52,22 @@ export default function CheckoutSuccessPage() {
         </div>
       </div>
     </MainLayout>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={
+      <MainLayout>
+        <div className="flex min-h-[60vh] items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-rose-600 border-t-transparent mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </MainLayout>
+    }>
+      <SuccessContent />
+    </Suspense>
   );
 }

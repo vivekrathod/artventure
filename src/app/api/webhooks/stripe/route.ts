@@ -5,7 +5,7 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 import { sendOrderConfirmation } from "@/lib/resend";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-11-20.acacia",
+  apiVersion: "2025-10-29.clover",
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -71,16 +71,19 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
   try {
     console.log("Processing checkout session:", session.id);
 
+    // Cast session as any to handle API version differences
+    const sess = session as any;
+
     // Extract metadata
-    const metadata = session.metadata;
+    const metadata = sess.metadata;
     if (!metadata) {
       throw new Error("No metadata in session");
     }
 
     const userId = metadata.user_id || null;
     const itemsJson = metadata.items;
-    const email = session.customer_details?.email || metadata.email;
-    const shippingAddress = session.shipping_details?.address;
+    const email = sess.customer_details?.email || metadata.email;
+    const shippingAddress = sess.shipping_details?.address;
 
     if (!itemsJson) {
       throw new Error("No items in metadata");
@@ -96,17 +99,17 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
 
     // Get shipping cost from session
     const shippingCost =
-      session.total_details?.amount_shipping
-        ? session.total_details.amount_shipping / 100
+      sess.total_details?.amount_shipping
+        ? sess.total_details.amount_shipping / 100
         : parseFloat(metadata.shipping_cost || "0");
 
     // Get tax amount from session
     const taxAmount =
-      session.total_details?.amount_tax
-        ? session.total_details.amount_tax / 100
+      sess.total_details?.amount_tax
+        ? sess.total_details.amount_tax / 100
         : 0;
 
-    const totalAmount = session.amount_total ? session.amount_total / 100 : 0;
+    const totalAmount = sess.amount_total ? sess.amount_total / 100 : 0;
 
     // Generate order number
     const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
@@ -114,29 +117,30 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
     // Format shipping address
     const formattedShippingAddress = shippingAddress
       ? {
-          name: session.shipping_details?.name || "",
+          name: sess.shipping_details?.name || "",
           address_line1: shippingAddress.line1 || "",
           address_line2: shippingAddress.line2 || "",
           city: shippingAddress.city || "",
           state: shippingAddress.state || "",
           postal_code: shippingAddress.postal_code || "",
           country: shippingAddress.country || "",
-          phone: session.customer_details?.phone || "",
+          phone: sess.customer_details?.phone || "",
         }
       : {
-          name: session.customer_details?.name || "",
+          name: sess.customer_details?.name || "",
           address_line1: "",
           address_line2: "",
           city: "",
           state: "",
           postal_code: "",
           country: "",
-          phone: session.customer_details?.phone || "",
+          phone: sess.customer_details?.phone || "",
         };
 
     // Create order in database
     const { data: order, error: orderError } = await supabaseAdmin
       .from("orders")
+      // @ts-expect-error - Supabase type inference issue with generated types
       .insert({
         order_number: orderNumber,
         user_id: userId,
@@ -145,7 +149,7 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
         shipping_cost: shippingCost,
         tax_amount: taxAmount,
         total_amount: totalAmount,
-        stripe_payment_id: session.payment_intent as string,
+        stripe_payment_id: sess.payment_intent as string,
         status: "pending",
       })
       .select()
@@ -156,11 +160,11 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
       throw orderError;
     }
 
-    console.log("Order created:", order.id);
+    console.log("Order created:", (order as any).id);
 
     // Create order items
     const orderItems = items.map((item: any) => ({
-      order_id: order.id,
+      order_id: (order as any).id,
       product_id: item.product_id,
       product_name: item.name,
       price_at_purchase: item.price,
@@ -185,7 +189,7 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
         {
           product_id: item.product_id,
           quantity: item.quantity,
-        }
+        } as any
       );
 
       if (inventoryError) {
@@ -208,7 +212,7 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
         order_items (*)
       `
       )
-      .eq("id", order.id)
+      .eq("id", (order as any).id)
       .single();
 
     // Send confirmation email

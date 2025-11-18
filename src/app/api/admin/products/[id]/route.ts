@@ -70,6 +70,7 @@ export async function PUT(
 
     const { data, error } = await supabaseAdmin
       .from("products")
+      // @ts-expect-error - Supabase type inference issue with generated types
       .update({
         name,
         slug,

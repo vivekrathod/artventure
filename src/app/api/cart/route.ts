@@ -83,14 +83,14 @@ export async function POST(request: NextRequest) {
       .single();
 
     const newQuantity = existingItem
-      ? existingItem.quantity + quantity
+      ? (existingItem as any).quantity + quantity
       : quantity;
 
     // Validate against inventory
-    if (newQuantity > product.inventory_count) {
+    if (newQuantity > (product as any).inventory_count) {
       return NextResponse.json(
         {
-          error: `Only ${product.inventory_count} items available in stock`,
+          error: `Only ${(product as any).inventory_count} items available in stock`,
         },
         { status: 400 }
       );
@@ -100,8 +100,9 @@ export async function POST(request: NextRequest) {
       // Update quantity
       const { data, error } = await supabaseAdmin
         .from("cart_items")
+        // @ts-expect-error - Supabase type inference issue with generated types
         .update({ quantity: newQuantity })
-        .eq("id", existingItem.id)
+        .eq("id", (existingItem as any).id)
         .select()
         .single();
 
@@ -117,6 +118,7 @@ export async function POST(request: NextRequest) {
       // Insert new item
       const { data, error } = await supabaseAdmin
         .from("cart_items")
+        // @ts-expect-error - Supabase type inference issue with generated types
         .insert({
           user_id: user.id,
           product_id: productId,

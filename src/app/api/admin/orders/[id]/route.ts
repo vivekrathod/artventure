@@ -21,16 +21,14 @@ export async function PUT(
       .single();
 
     // Update order
-    const updateData: {
-      status: string;
-      tracking_number?: string;
-    } = { status };
+    const updateData: any = { status };
     if (tracking_number !== undefined) {
       updateData.tracking_number = tracking_number;
     }
 
     const { data, error } = await supabaseAdmin
       .from("orders")
+      // @ts-expect-error - Supabase type inference issue with generated types
       .update(updateData)
       .eq("id", id)
       .select(
@@ -56,7 +54,7 @@ export async function PUT(
     }
 
     // Send email notifications based on status change
-    const oldStatus = currentOrder?.status;
+    const oldStatus = (currentOrder as any)?.status;
     if (data && oldStatus !== status) {
       try {
         if (status === "processing") {

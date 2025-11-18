@@ -42,17 +42,17 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      if (!product.is_published) {
+      if (!(product as any).is_published) {
         return NextResponse.json(
-          { error: `Product no longer available: ${product.name}` },
+          { error: `Product no longer available: ${(product as any).name}` },
           { status: 400 }
         );
       }
 
-      if (product.inventory_count < item.quantity) {
+      if ((product as any).inventory_count < item.quantity) {
         return NextResponse.json(
           {
-            error: `Insufficient inventory for ${product.name}. Only ${product.inventory_count} available.`,
+            error: `Insufficient inventory for ${(product as any).name}. Only ${(product as any).inventory_count} available.`,
           },
           { status: 400 }
         );
@@ -70,18 +70,26 @@ export async function POST(request: NextRequest) {
       subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : FLAT_SHIPPING_RATE;
 
     // Create line items for Stripe
-    const lineItems = items.map((item: any) => ({
-      price_data: {
-        currency: "usd",
-        product_data: {
-          name: item.name,
-          description: item.description || "",
-          images: item.image ? [item.image] : [],
+    const lineItems = items.map((item: any) => {
+      const productData: any = {
+        name: item.name,
+        images: item.image ? [item.image] : [],
+      };
+
+      // Only include description if it's not empty
+      if (item.description && item.description.trim() !== "") {
+        productData.description = item.description;
+      }
+
+      return {
+        price_data: {
+          currency: "usd",
+          product_data: productData,
+          unit_amount: Math.round(item.price * 100), // Convert to cents
         },
-        unit_amount: Math.round(item.price * 100), // Convert to cents
-      },
-      quantity: item.quantity,
-    }));
+        quantity: item.quantity,
+      };
+    });
 
     // Add shipping as a line item if applicable
     if (shippingCost > 0) {

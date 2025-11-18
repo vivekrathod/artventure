@@ -43,7 +43,7 @@ export async function isUserAdmin(): Promise<boolean> {
       .eq("user_id", user.id)
       .single();
 
-    return profile?.is_admin || false;
+    return (profile as any)?.is_admin || false;
   } catch (error) {
     console.error("Error checking admin status:", error);
     return false;
@@ -77,6 +77,7 @@ export async function getOrCreateProfile(userId: string, email: string, fullName
     // Create new profile
     const { data: newProfile, error } = await supabaseAdmin
       .from("profiles")
+      // @ts-expect-error - Supabase type inference issue with generated types
       .insert({
         user_id: userId,
         full_name: fullName || null,

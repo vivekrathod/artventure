@@ -35,7 +35,7 @@ export default function CheckoutPage() {
         description: item.product.description,
         price: item.product.price,
         quantity: item.quantity,
-        image: item.product.product_images?.[0]?.image_url,
+        image: (item.product as any).product_images?.[0]?.image_url,
       }));
 
       const response = await fetch("/api/checkout", {

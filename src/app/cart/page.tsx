@@ -65,7 +65,7 @@ export default function CartPage() {
               <div className="space-y-4">
                 {items.map((item) => {
                   // Get primary image (lowest display_order)
-                  const images = item.product.product_images || [];
+                  const images = (item.product as any).product_images || [];
                   const sortedImages = [...images].sort(
                     (a: any, b: any) => a.display_order - b.display_order
                   );

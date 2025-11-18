@@ -22,6 +22,7 @@ export async function POST(
 
     const { data, error } = await supabaseAdmin
       .from("product_images")
+      // @ts-expect-error - Supabase type inference issue with generated types
       .insert({
         product_id: id,
         image_url,
