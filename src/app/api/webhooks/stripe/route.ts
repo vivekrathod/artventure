@@ -3,10 +3,7 @@ import { headers } from "next/headers";
 import Stripe from "stripe";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { sendOrderConfirmation } from "@/lib/resend";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-10-29.clover",
-});
+import { stripe } from "@/lib/stripe";
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 

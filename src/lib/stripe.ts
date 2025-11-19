@@ -4,7 +4,7 @@ import Stripe from "stripe";
 // This allows the build to succeed in CI without requiring secrets
 let _stripe: Stripe | null = null;
 
-function getStripe(): Stripe {
+export function getStripe(): Stripe {
   if (!_stripe) {
     if (!process.env.STRIPE_SECRET_KEY) {
       throw new Error("STRIPE_SECRET_KEY is not configured");
@@ -17,11 +17,19 @@ function getStripe(): Stripe {
   return _stripe;
 }
 
-// Export a proxy object that lazily initializes Stripe
-export const stripe = new Proxy({} as Stripe, {
-  get: (target, prop) => {
-    const stripeInstance = getStripe();
-    const value = stripeInstance[prop as keyof Stripe];
-    return typeof value === 'function' ? value.bind(stripeInstance) : value;
-  }
-});
+// Export stripe as a getter to maintain compatibility while keeping lazy initialization
+export const stripe = {
+  get checkout() {
+    return getStripe().checkout;
+  },
+  get webhooks() {
+    return getStripe().webhooks;
+  },
+  get customers() {
+    return getStripe().customers;
+  },
+  get paymentIntents() {
+    return getStripe().paymentIntents;
+  },
+  // Add other Stripe properties as needed
+};

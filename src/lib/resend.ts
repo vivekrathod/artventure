@@ -5,7 +5,7 @@ import { OrderWithItems } from "@/types/database";
 // This allows the build to succeed in CI without requiring secrets
 let _resend: Resend | null = null;
 
-function getResend(): Resend {
+export function getResend(): Resend {
   if (!_resend) {
     if (!process.env.RESEND_API_KEY) {
       throw new Error("RESEND_API_KEY is not configured");
@@ -14,6 +14,13 @@ function getResend(): Resend {
   }
   return _resend;
 }
+
+// Export resend as a getter to maintain compatibility while keeping lazy initialization
+export const resend = {
+  get emails() {
+    return getResend().emails;
+  },
+};
 
 // Use onboarding email for testing, or your verified domain
 // Change to your verified domain once you have one: "ArtVenture <orders@sukusartventure.com>"
