@@ -1,9 +1,19 @@
 import { Resend } from "resend";
 import { OrderWithItems } from "@/types/database";
 
-// Allow build to proceed without Resend configured
-// The actual runtime will fail if RESEND_API_KEY is not set when called
-const resend = new Resend(process.env.RESEND_API_KEY || 're_placeholder_for_build');
+// Lazy initialization to avoid build-time errors when API key is not set
+// This allows the build to succeed in CI without requiring secrets
+let _resend: Resend | null = null;
+
+function getResend(): Resend {
+  if (!_resend) {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error("RESEND_API_KEY is not configured");
+    }
+    _resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resend;
+}
 
 // Use onboarding email for testing, or your verified domain
 // Change to your verified domain once you have one: "ArtVenture <orders@sukusartventure.com>"
@@ -105,7 +115,7 @@ export async function sendOrderConfirmation(order: OrderWithItems) {
   `;
 
   try {
-    const result = await resend.emails.send({
+    const result = await getResend().emails.send({
       from: FROM_EMAIL,
       to: order.email,
       subject: `Order Confirmation #${order.order_number}`,
@@ -168,7 +178,7 @@ export async function sendOrderProcessing(order: OrderWithItems) {
   `;
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: FROM_EMAIL,
       to: order.email,
       subject: `Order #${order.order_number} is Being Processed`,
@@ -237,7 +247,7 @@ export async function sendOrderShipped(order: OrderWithItems) {
   `;
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: FROM_EMAIL,
       to: order.email,
       subject: `Order #${order.order_number} Has Shipped!`,
@@ -281,7 +291,7 @@ export async function sendContactFormEmail(data: {
   `;
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: FROM_EMAIL,
       to: "support@sukusartventure.com", // Your support email
       replyTo: data.email,
