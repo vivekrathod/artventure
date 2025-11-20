@@ -69,19 +69,45 @@ WHERE u.email = 'your-email@example.com';
 
 ### 3. Configure Authentication
 
+#### Enable Authentication Providers
+
 1. Go to **Authentication** → **Providers**
 2. Enable desired providers:
    - ✅ Email (enabled by default)
-   - ✅ Google (optional)
-   - ✅ GitHub (optional)
+   - ✅ Google (optional - requires OAuth client ID/secret)
+   - ✅ GitHub (optional - requires OAuth app)
 
-3. Set redirect URLs:
-   - Development: `http://localhost:3000/**`
-   - Production: `https://www.sukusartventure.com/**`
+#### Configure URL Settings
 
-4. Go to **Authentication** → **URL Configuration**
-   - Site URL: `https://www.sukusartventure.com`
-   - Redirect URLs: Add both development and production URLs
+3. Go to **Authentication** → **URL Configuration**
+
+**Site URL:**
+```
+https://www.sukusartventure.com
+```
+*This is your primary domain (with www since Vercel redirects to it)*
+
+**Redirect URLs** (add all of these):
+```
+https://www.sukusartventure.com/**
+https://sukusartventure.com/**
+http://localhost:3000/**
+http://localhost:3000/auth/callback
+https://www.sukusartventure.com/auth/callback
+https://www.sukusartventure.com/auth/signin
+https://www.sukusartventure.com/auth/signup
+```
+
+**Why both www and non-www?**
+- Even though Vercel redirects to www, some OAuth providers might use the non-www URL
+- Adding both ensures authentication works regardless of which URL is used
+
+**Important Notes:**
+- Use `www.sukusartventure.com` as your primary Site URL
+- Include wildcards (`**`) to allow all paths under your domain
+- Include localhost for development/testing
+- `/auth/callback` is required for OAuth flows
+- `/auth/signin` and `/auth/signup` are needed for email authentication
 
 ### 4. Get Environment Variables
 
@@ -155,6 +181,34 @@ SELECT COUNT(*) as category_count FROM categories;
 ```
 
 Expected: **4 categories** (if you ran seed data)
+
+### Test Authentication Setup
+
+After configuring URLs, test the authentication flows:
+
+**1. Email Sign Up/Sign In**
+- Navigate to `http://localhost:3000/auth/signup` (or production URL)
+- Sign up with a test email
+- Should redirect back to your site without errors
+- Check that profile was auto-created in database
+
+**2. OAuth (if enabled)**
+- Try Google/GitHub login
+- Should redirect to provider, then back to your site
+- No "redirect URL not allowed" errors
+
+**3. Password Reset**
+- Test forgot password flow
+- Email link should redirect to your site correctly
+
+**4. Email Verification**
+- Check email confirmation links work
+- Links should redirect to your site
+
+**Common Issues:**
+- ❌ "Redirect URL not allowed" → Add the URL to Redirect URLs list
+- ❌ 307 redirect loop → Check if your URL includes/excludes www correctly
+- ❌ OAuth fails → Verify provider credentials and redirect URLs match
 
 ## Database Migrations
 
