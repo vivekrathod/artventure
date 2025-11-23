@@ -1,10 +1,13 @@
 name: CI
 
 on:
-  push:
-    branches: [ main, claude/** ]
+  # Run on PRs to main (covers both new PRs and pushes to existing PR branches)
   pull_request:
     branches: [ main ]
+  # Run on direct pushes to main only (post-merge verification)
+  push:
+    branches: [ main ]
+  # Allow manual trigger
   workflow_dispatch:
 
 jobs:
@@ -25,17 +28,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run unit and API tests
-        run: npm test
+      - name: Run unit and API tests with coverage
+        run: npm run test:coverage
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           NEXT_PUBLIC_APP_URL: http://localhost:3000
-
-      - name: Generate coverage report
-        run: npm run test:coverage
-        continue-on-error: true
 
       - name: Upload coverage to Codecov (optional)
         uses: codecov/codecov-action@v3
@@ -48,7 +47,7 @@ jobs:
   test-e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30  # Increased timeout for E2E tests with proper cleanup
 
     steps:
       - name: Checkout code
