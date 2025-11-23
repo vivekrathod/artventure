@@ -2,6 +2,16 @@ import { test, expect } from '@playwright/test';
 import { createAndSignInUser, cleanupUser } from '../helpers/e2e';
 
 test.describe('Shopping Flow', () => {
+  let currentUserId: string | null = null;
+
+  test.afterEach(async () => {
+    // Clean up any user created during the test
+    if (currentUserId) {
+      await cleanupUser(currentUserId);
+      currentUserId = null;
+    }
+  });
+
   test('should browse products and view details', async ({ page }) => {
     await page.goto('/products');
 
@@ -29,6 +39,7 @@ test.describe('Shopping Flow', () => {
   test('should add product to cart', async ({ page }) => {
     // Create and sign in user via admin API
     const { user } = await createAndSignInUser(page);
+    currentUserId = user.id;
 
     await page.goto('/products');
 
@@ -49,23 +60,21 @@ test.describe('Shopping Flow', () => {
     // Cart count should update
     const cartCount = page.locator('[data-testid="cart-count"]');
     await expect(cartCount).toHaveText('1');
-
-    // Cleanup
-    await cleanupUser(user.id);
   });
 
   test('should view and manage cart', async ({ page }) => {
     // Create and sign in user via admin API
     const { user } = await createAndSignInUser(page);
+    currentUserId = user.id;
 
     // Add item to cart first
     await page.goto('/products');
     await page.locator('[data-testid="product-card"]').first().click();
     await page.click('button:has-text("Add to Cart")');
-    
+
     // Wait for success message to ensure item was added
     await expect(page.locator('text=/Added to cart|Success/i')).toBeVisible({ timeout: 5000 });
-    
+
     // Wait a bit for localStorage to update
     await page.waitForTimeout(500);
 
@@ -88,20 +97,18 @@ test.describe('Shopping Flow', () => {
 
     // Should show checkout button (it's a link in this implementation)
     await expect(page.locator('a:has-text("Checkout")')).toBeVisible();
-
-    // Cleanup
-    await cleanupUser(user.id);
   });
 
   test('should update cart quantity', async ({ page }) => {
     // Create and sign in user via admin API
     const { user } = await createAndSignInUser(page);
+    currentUserId = user.id;
 
     // Add item to cart
     await page.goto('/products');
     await page.locator('[data-testid="product-card"]').first().click();
     await page.click('button:has-text("Add to Cart")');
-    
+
     // Wait for success message
     await expect(page.locator('text=/Added to cart|Success/i')).toBeVisible({ timeout: 5000 });
     await page.waitForTimeout(500);
@@ -125,20 +132,18 @@ test.describe('Shopping Flow', () => {
     // Quantity should increase
     const newQuantity = await quantityDisplay.textContent();
     expect(parseInt(newQuantity || '0')).toBeGreaterThan(parseInt(initialQuantity || '0'));
-
-    // Cleanup
-    await cleanupUser(user.id);
   });
 
   test('should remove item from cart', async ({ page }) => {
     // Create and sign in user via admin API
     const { user } = await createAndSignInUser(page);
+    currentUserId = user.id;
 
     // Add item to cart
     await page.goto('/products');
     await page.locator('[data-testid="product-card"]').first().click();
     await page.click('button:has-text("Add to Cart")');
-    
+
     // Wait for success message
     await expect(page.locator('text=/Added to cart|Success/i')).toBeVisible({ timeout: 5000 });
     await page.waitForTimeout(500);
@@ -153,20 +158,18 @@ test.describe('Shopping Flow', () => {
     await expect(page.locator('text=/empty/i').first()).toBeVisible({
       timeout: 5000,
     });
-
-    // Cleanup
-    await cleanupUser(user.id);
   });
 
   test('should proceed to checkout', async ({ page }) => {
     // Create and sign in user via admin API
     const { user } = await createAndSignInUser(page);
+    currentUserId = user.id;
 
     // Add item to cart
     await page.goto('/products');
     await page.locator('[data-testid="product-card"]').first().click();
     await page.click('button:has-text("Add to Cart")');
-    
+
     // Wait for success message
     await expect(page.locator('text=/Added to cart|Success/i')).toBeVisible({ timeout: 5000 });
     await page.waitForTimeout(500);
@@ -185,9 +188,6 @@ test.describe('Shopping Flow', () => {
 
     // Should show payment button
     await expect(page.locator('button:has-text("Proceed to Payment")')).toBeVisible();
-
-    // Cleanup
-    await cleanupUser(user.id);
   });
 });
 
