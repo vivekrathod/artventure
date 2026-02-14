@@ -41,20 +41,22 @@ test.describe('Authentication Flow', () => {
     // Create user via admin API (bypasses email validation)
     const { user, password } = await createTestUser();
 
-    // Sign in through the UI to verify account works
-    await page.goto('/auth/signin');
-    await page.fill('input[name="email"]', user.email!);
-    await page.fill('input[name="password"]', password);
-    await page.click('button[type="submit"]');
+    try {
+      // Sign in through the UI to verify account works
+      await page.goto('/auth/signin');
+      await page.fill('input[name="email"]', user.email!);
+      await page.fill('input[name="password"]', password);
+      await page.click('button[type="submit"]');
 
-    // Should redirect to home page
-    await expect(page).toHaveURL('/');
+      // Should redirect to home page
+      await expect(page).toHaveURL('/');
 
-    // Should show user email in header
-    await expect(page.locator('text=' + user.email!)).toBeVisible();
-
-    // Cleanup
-    await cleanupUser(user.id);
+      // Should show user email in header
+      await expect(page.locator('text=' + user.email!)).toBeVisible();
+    } finally {
+      // Cleanup - runs even if test fails
+      await cleanupUser(user.id);
+    }
   });
 
   test('should show error for invalid credentials', async ({ page }) => {

@@ -1,10 +1,20 @@
 import { test, expect } from '@playwright/test';
-import { createAndSignInAdmin } from '../helpers/e2e';
+import { createAndSignInAdmin, cleanupUser } from '../helpers/e2e';
 
 test.describe('Admin Product Management', () => {
+  let adminUserId: string;
+
   test.beforeEach(async ({ page }) => {
     // Create and sign in as admin via admin API
-    await createAndSignInAdmin(page);
+    const { user } = await createAndSignInAdmin(page);
+    adminUserId = user.id;
+  });
+
+  test.afterEach(async () => {
+    // Clean up admin user after each test
+    if (adminUserId) {
+      await cleanupUser(adminUserId);
+    }
   });
 
   test('should access admin panel', async ({ page }) => {
@@ -150,9 +160,19 @@ test.describe('Admin Product Management', () => {
 });
 
 test.describe('Admin Order Management', () => {
+  let adminUserId: string;
+
   test.beforeEach(async ({ page }) => {
     // Create and sign in as admin via admin API
-    await createAndSignInAdmin(page);
+    const { user } = await createAndSignInAdmin(page);
+    adminUserId = user.id;
+  });
+
+  test.afterEach(async () => {
+    // Clean up admin user after each test
+    if (adminUserId) {
+      await cleanupUser(adminUserId);
+    }
   });
 
   test('should view orders list', async ({ page }) => {
