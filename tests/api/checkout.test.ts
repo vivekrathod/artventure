@@ -1,8 +1,23 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+// Check if API is available
+async function checkApiAvailability() {
+  try {
+    const response = await fetch('http://localhost:3000/api/products?featured=true');
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+const API_AVAILABLE = await checkApiAvailability();
+
+if (!API_AVAILABLE) {
+  console.warn('⚠️  API not available (is dev server running?), skipping API tests');
+}
 import { apiRequest } from '../helpers/api';
 import { createTestProduct, deleteTestProduct, cleanupTestData } from '../helpers/database';
 
-describe('Checkout API', () => {
+describe.skipIf(!API_AVAILABLE)('Checkout API', () => {
   let testProduct: any;
   let lowStockProduct: any;
   let supabaseAvailable = false;
@@ -39,8 +54,8 @@ describe('Checkout API', () => {
     await cleanupTestData();
   });
 
-  describe('POST /api/checkout', () => {
-    it.skipIf(!supabaseAvailable)('should create checkout session with valid items', async () => {
+  describe.skipIf(!API_AVAILABLE)('POST /api/checkout', () => {
+    it('should create checkout session with valid items', async () => {
       const { status, ok, data } = await apiRequest('/api/checkout', {
         method: 'POST',
         body: JSON.stringify({
@@ -64,7 +79,7 @@ describe('Checkout API', () => {
       expect(data).toHaveProperty('subtotal');
     });
 
-    it.skipIf(!supabaseAvailable)('should calculate free shipping over threshold', async () => {
+    it('should calculate free shipping over threshold', async () => {
       const { status, data } = await apiRequest('/api/checkout', {
         method: 'POST',
         body: JSON.stringify({
@@ -84,7 +99,7 @@ describe('Checkout API', () => {
       expect(data.shippingCost).toBe(0);
     });
 
-    it.skipIf(!supabaseAvailable)('should charge shipping under threshold', async () => {
+    it('should charge shipping under threshold', async () => {
       const { status, data } = await apiRequest('/api/checkout', {
         method: 'POST',
         body: JSON.stringify({
@@ -104,7 +119,7 @@ describe('Checkout API', () => {
       expect(data.shippingCost).toBe(5.99);
     });
 
-    it.skipIf(!supabaseAvailable)('should reject empty cart', async () => {
+    it('should reject empty cart', async () => {
       const { status, data } = await apiRequest('/api/checkout', {
         method: 'POST',
         body: JSON.stringify({
@@ -116,7 +131,7 @@ describe('Checkout API', () => {
       expect(data.error).toContain('No items');
     });
 
-    it.skipIf(!supabaseAvailable)('should reject insufficient inventory', async () => {
+    it('should reject insufficient inventory', async () => {
       const { status, data } = await apiRequest('/api/checkout', {
         method: 'POST',
         body: JSON.stringify({
@@ -137,7 +152,7 @@ describe('Checkout API', () => {
       expect(data.error).toContain('2 available');
     });
 
-    it.skipIf(!supabaseAvailable)('should reject item without product_id', async () => {
+    it('should reject item without product_id', async () => {
       const { status, data } = await apiRequest('/api/checkout', {
         method: 'POST',
         body: JSON.stringify({
@@ -156,7 +171,7 @@ describe('Checkout API', () => {
       expect(data.error).toContain('missing product ID');
     });
 
-    it.skipIf(!supabaseAvailable)('should reject unpublished product', async () => {
+    it('should reject unpublished product', async () => {
       const unpublished = await createTestProduct({
         name: 'Unpublished',
         is_published: false,

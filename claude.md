@@ -820,9 +820,12 @@ export default defineConfig({
 ### Running Tests
 
 ```bash
-# Unit and API tests
+# Unit tests only (no server needed)
 npm test                    # Watch mode
 npm run test:coverage      # With coverage report
+
+# Unit + API tests (automatic dev server)
+npm run test:with-server   # Runs dev server + all Vitest tests
 
 # E2E tests
 npm run test:e2e           # Headless
@@ -830,12 +833,53 @@ npm run test:e2e:ui        # Interactive UI mode
 npm run test:e2e:debug     # Debug mode with browser
 
 # Run all tests
-npm run test:all           # Unit + API + E2E
+npm run test:all           # Unit + API + E2E (full suite)
 
 # Run specific test file
 npx vitest tests/unit/cart-store.test.ts
 npx playwright test tests/e2e/auth.spec.ts
 ```
+
+### Test Infrastructure (Updated 2026-02-21)
+
+**Dependencies:**
+- `concurrently` - Run dev server + tests simultaneously
+- `wait-on` - Wait for server to be ready before running tests
+
+**How It Works:**
+1. Unit tests run standalone (no server needed)
+2. API tests require Next.js dev server running
+3. `npm run test:with-server` automatically:
+   - Starts dev server
+   - Waits for http://localhost:3000 to respond
+   - Runs all tests
+   - Stops dev server when done
+
+**API Test Pattern:**
+API tests check server availability at module load time:
+```typescript
+// Check if API is available (runs when module loads)
+async function checkApiAvailability() {
+  try {
+    const response = await fetch('http://localhost:3000/api/products?featured=true');
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+const API_AVAILABLE = await checkApiAvailability();
+
+// Skip entire describe block if API not available
+describe.skipIf(!API_AVAILABLE)('API Tests', () => {
+  // Tests only run if server is available
+});
+```
+
+**Why This Pattern:**
+- Vitest optimizes: if ALL tests skip, `beforeAll` doesn't run
+- Old pattern had circular dependency: tests skipped → beforeAll didn't run → flag stayed false → tests skipped
+- New pattern: check availability BEFORE test collection → skip entire block if needed
 
 ### Test Coverage Metrics
 

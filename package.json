@@ -10,10 +10,11 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
+    "test:with-server": "concurrently --kill-others --success first \"npm run dev\" \"wait-on http://localhost:3000 && sleep 3 && npm test -- --run\"",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
-    "test:all": "npm run test && npm run test:e2e"
+    "test:all": "npm run test:with-server && npm run test:e2e"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^5.3.0",
@@ -41,6 +42,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/coverage-v8": "^4.0.10",
     "@vitest/ui": "^4.0.10",
+    "concurrently": "^9.2.1",
     "dotenv": "^16.4.7",
     "eslint": "^9",
     "eslint-config-next": "16.0.10",
@@ -48,6 +50,7 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.0.10"
+    "vitest": "^4.0.10",
+    "wait-on": "^9.0.4"
   }
 }

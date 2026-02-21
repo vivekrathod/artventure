@@ -1,8 +1,23 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+// Check if API is available
+async function checkApiAvailability() {
+  try {
+    const response = await fetch('http://localhost:3000/api/products?featured=true');
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+const API_AVAILABLE = await checkApiAvailability();
+
+if (!API_AVAILABLE) {
+  console.warn('⚠️  API not available (is dev server running?), skipping API tests');
+}
 import { apiRequest } from '../helpers/api';
 import { createTestProduct, createTestUser, deleteTestProduct, deleteTestUser, createTestSupabaseClient } from '../helpers/database';
 
-describe('Cart API', () => {
+describe.skipIf(!API_AVAILABLE)('Cart API', () => {
   let testProduct: any;
   let testUser: any;
   let accessToken: string;
@@ -46,8 +61,8 @@ describe('Cart API', () => {
     if (testUser) await deleteTestUser(testUser.id);
   });
 
-  describe('POST /api/cart', () => {
-    it.skipIf(!supabaseAvailable)('should add item to cart', async () => {
+  describe.skipIf(!API_AVAILABLE)('POST /api/cart', () => {
+    it('should add item to cart', async () => {
       const { status, ok, data } = await apiRequest('/api/cart', {
         method: 'POST',
         headers: {
@@ -66,7 +81,7 @@ describe('Cart API', () => {
       expect(data.quantity).toBe(2);
     });
 
-    it.skipIf(!supabaseAvailable)('should reject invalid quantity', async () => {
+    it('should reject invalid quantity', async () => {
       const { status } = await apiRequest('/api/cart', {
         method: 'POST',
         headers: {
@@ -81,7 +96,7 @@ describe('Cart API', () => {
       expect(status).toBe(400);
     });
 
-    it.skipIf(!supabaseAvailable)('should reject quantity exceeding inventory', async () => {
+    it('should reject quantity exceeding inventory', async () => {
       const { status, data } = await apiRequest('/api/cart', {
         method: 'POST',
         headers: {
@@ -97,7 +112,7 @@ describe('Cart API', () => {
       expect(data.error).toContain('available in stock');
     });
 
-    it.skipIf(!supabaseAvailable)('should reject without authentication', async () => {
+    it('should reject without authentication', async () => {
       const { status } = await apiRequest('/api/cart', {
         method: 'POST',
         body: JSON.stringify({
@@ -110,8 +125,8 @@ describe('Cart API', () => {
     });
   });
 
-  describe('GET /api/cart', () => {
-    it.skipIf(!supabaseAvailable)('should get user cart items', async () => {
+  describe.skipIf(!API_AVAILABLE)('GET /api/cart', () => {
+    it('should get user cart items', async () => {
       const { status, ok, data } = await apiRequest('/api/cart', {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -123,7 +138,7 @@ describe('Cart API', () => {
       expect(Array.isArray(data)).toBe(true);
     });
 
-    it.skipIf(!supabaseAvailable)('should require authentication', async () => {
+    it('should require authentication', async () => {
       const { status } = await apiRequest('/api/cart');
 
       expect(status).toBe(401);

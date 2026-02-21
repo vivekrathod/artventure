@@ -2,30 +2,34 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { apiRequest } from '../helpers/api';
 import { createTestProduct, deleteTestProduct, cleanupTestData } from '../helpers/database';
 
-describe('Products API', () => {
+// Check if API is available (this runs at module load time)
+async function checkApiAvailability() {
+  try {
+    const response = await fetch('http://localhost:3000/api/products?featured=true');
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+const API_AVAILABLE = await checkApiAvailability();
+
+if (!API_AVAILABLE) {
+  console.warn('⚠️  API not available (is dev server running?), skipping API tests');
+}
+
+describe.skipIf(!API_AVAILABLE)('Products API', () => {
   let testProduct: any;
-  let supabaseAvailable = false;
 
   beforeAll(async () => {
-    // Try to create a test product
-    try {
-      testProduct = await createTestProduct({
-        name: 'Test API Product',
-        slug: `test-api-product-${Date.now()}`,
-        price: 49.99,
-        inventory_count: 5,
-        is_published: true,
-      });
-      supabaseAvailable = true;
-    } catch (error: any) {
-      // Skip tests if Supabase is not available
-      if (error.message?.includes('fetch failed') || error.code === 'EAI_AGAIN') {
-        console.warn('⚠️  Supabase not available, skipping API tests');
-        supabaseAvailable = false;
-      } else {
-        throw error;
-      }
-    }
+    // Create a test product for the test suite
+    testProduct = await createTestProduct({
+      name: 'Test API Product',
+      slug: `test-api-product-${Date.now()}`,
+      price: 49.99,
+      inventory_count: 5,
+      is_published: true,
+    });
   });
 
   afterAll(async () => {
@@ -37,7 +41,7 @@ describe('Products API', () => {
   });
 
   describe('GET /api/products', () => {
-    it.skipIf(!supabaseAvailable)('should return list of published products', async () => {
+    it('should return list of published products', async () => {
       const { status, ok, data } = await apiRequest('/api/products');
 
       expect(status).toBe(200);
@@ -55,7 +59,7 @@ describe('Products API', () => {
       expect(product.is_published).toBe(true);
     });
 
-    it.skipIf(!supabaseAvailable)('should filter by featured products', async () => {
+    it('should filter by featured products', async () => {
       const { status, data } = await apiRequest('/api/products?featured=true');
 
       expect(status).toBe(200);
@@ -67,7 +71,7 @@ describe('Products API', () => {
       });
     });
 
-    it.skipIf(!supabaseAvailable)('should filter by category', async () => {
+    it('should filter by category', async () => {
       // Test with a valid UUID format (non-existent category should return empty array)
       const { status, data } = await apiRequest('/api/products?category=00000000-0000-0000-0000-000000000000');
       expect(status).toBe(200);
@@ -75,7 +79,7 @@ describe('Products API', () => {
       expect(data.length).toBe(0);
     });
 
-    it.skipIf(!supabaseAvailable)('should search products by name', async () => {
+    it('should search products by name', async () => {
       const { status, data } = await apiRequest(`/api/products?search=${encodeURIComponent('Test API')}`);
 
       expect(status).toBe(200);
@@ -88,7 +92,7 @@ describe('Products API', () => {
   });
 
   describe('GET /api/products/[id]', () => {
-    it.skipIf(!supabaseAvailable)('should get product by ID', async () => {
+    it('should get product by ID', async () => {
       const { status, ok, data } = await apiRequest(`/api/products/${testProduct.id}`);
 
       expect(status).toBe(200);
@@ -98,7 +102,7 @@ describe('Products API', () => {
       expect(data.price).toBe(testProduct.price);
     });
 
-    it.skipIf(!supabaseAvailable)('should get product by slug', async () => {
+    it('should get product by slug', async () => {
       const { status, ok, data } = await apiRequest(`/api/products/${testProduct.slug}`);
 
       expect(status).toBe(200);
@@ -107,19 +111,19 @@ describe('Products API', () => {
       expect(data.slug).toBe(testProduct.slug);
     });
 
-    it.skipIf(!supabaseAvailable)('should return 404 for non-existent product', async () => {
+    it('should return 404 for non-existent product', async () => {
       const { status } = await apiRequest('/api/products/00000000-0000-0000-0000-000000000000');
 
       expect(status).toBe(404);
     });
 
-    it.skipIf(!supabaseAvailable)('should return 404 for invalid slug', async () => {
+    it('should return 404 for invalid slug', async () => {
       const { status } = await apiRequest('/api/products/non-existent-slug');
 
       expect(status).toBe(404);
     });
 
-    it.skipIf(!supabaseAvailable)('should not return unpublished products', async () => {
+    it('should not return unpublished products', async () => {
       // Create an unpublished product
       const unpublished = await createTestProduct({
         name: 'Unpublished Product',
