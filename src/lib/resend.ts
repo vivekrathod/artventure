@@ -70,7 +70,7 @@ export async function sendOrderConfirmation(order: OrderWithItems) {
   <div style="background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     <h2 style="color: #be123c; margin-top: 0;">Thank You for Your Order!</h2>
 
-    <p>Hi ${order.shipping_address.full_name},</p>
+    <p>Hi ${order.shipping_address.name},</p>
 
     <p>We've received your order and we're getting started on it right away. You'll receive another email when your order ships.</p>
 
@@ -105,11 +105,12 @@ export async function sendOrderConfirmation(order: OrderWithItems) {
 
     <h3 style="color: #333; border-bottom: 2px solid #be123c; padding-bottom: 10px; margin-top: 30px;">Shipping Address</h3>
     <p style="margin: 10px 0;">
-      ${order.shipping_address.full_name}<br>
+      ${order.shipping_address.name}<br>
       ${order.shipping_address.address_line1}<br>
       ${order.shipping_address.address_line2 ? `${order.shipping_address.address_line2}<br>` : ""}
       ${order.shipping_address.city}, ${order.shipping_address.state} ${order.shipping_address.postal_code}<br>
       ${order.shipping_address.country}
+      ${order.shipping_address.phone ? `<br>Phone: ${order.shipping_address.phone}` : ""}
     </p>
   </div>
 
@@ -165,7 +166,7 @@ export async function sendOrderProcessing(order: OrderWithItems) {
   <div style="background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     <h2 style="color: #be123c; margin-top: 0;">Your Order is Being Processed!</h2>
 
-    <p>Hi ${order.shipping_address.full_name},</p>
+    <p>Hi ${order.shipping_address.name},</p>
 
     <p>Great news! We're now processing your order and carefully handcrafting your jewelry pieces.</p>
 
@@ -221,7 +222,7 @@ export async function sendOrderShipped(order: OrderWithItems) {
   <div style="background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     <h2 style="color: #be123c; margin-top: 0;">Your Order Has Shipped! 📦</h2>
 
-    <p>Hi ${order.shipping_address.full_name},</p>
+    <p>Hi ${order.shipping_address.name},</p>
 
     <p>Exciting news! Your order is on its way to you.</p>
 
@@ -238,11 +239,12 @@ export async function sendOrderShipped(order: OrderWithItems) {
 
     <p style="margin-top: 20px;">Your jewelry will arrive at:</p>
     <p style="background: #f9fafb; padding: 15px; border-radius: 6px;">
-      ${order.shipping_address.full_name}<br>
+      ${order.shipping_address.name}<br>
       ${order.shipping_address.address_line1}<br>
       ${order.shipping_address.address_line2 ? `${order.shipping_address.address_line2}<br>` : ""}
       ${order.shipping_address.city}, ${order.shipping_address.state} ${order.shipping_address.postal_code}<br>
       ${order.shipping_address.country}
+      ${order.shipping_address.phone ? `<br>Phone: ${order.shipping_address.phone}` : ""}
     </p>
   </div>
 

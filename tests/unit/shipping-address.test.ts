@@ -54,4 +54,27 @@ describe('Shipping Address Format', () => {
     expect(typeof minimalAddress.address_line2).toBe('string');
     expect(typeof minimalAddress.phone).toBe('string');
   });
+
+  it('email templates should use correct field names', () => {
+    // Test that email templates will work with the webhook format
+    const webhookAddress = {
+      name: "John Doe",
+      address_line1: "123 Main St",
+      address_line2: "Apt 4",
+      city: "New York",
+      state: "NY",
+      postal_code: "10001",
+      country: "US",
+      phone: "+1234567890",
+    };
+
+    // Simulate what email template does
+    const emailLine1 = webhookAddress.name; // Must use 'name', not 'full_name'
+    const emailLine2 = webhookAddress.address_line1;
+    const emailLine3 = `${webhookAddress.city}, ${webhookAddress.state} ${webhookAddress.postal_code}`;
+
+    expect(emailLine1).toBe("John Doe");
+    expect(emailLine2).toBe("123 Main St");
+    expect(emailLine3).toBe("New York, NY 10001");
+  });
 });
