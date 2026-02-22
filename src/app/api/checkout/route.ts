@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     }));
 
     // Create checkout session with automatic tax
-    const session = await stripe.checkout.sessions.create({
+    const sessionConfig: any = {
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: "payment",
@@ -143,13 +143,20 @@ export async function POST(request: NextRequest) {
       phone_number_collection: {
         enabled: true,
       },
-      ...(process.env.STRIPE_TAX_ENABLED === "true" && {
-        automatic_tax: {
-          enabled: true,
-        },
-      }),
-      customer_email: user?.email,
-    });
+      billing_address_collection: "required", // Also collect billing address
+    };
+
+    // Add customer email if user is logged in
+    if (user?.email) {
+      sessionConfig.customer_email = user.email;
+    }
+
+    // Add automatic tax if enabled
+    if (process.env.STRIPE_TAX_ENABLED === "true") {
+      sessionConfig.automatic_tax = { enabled: true };
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     return NextResponse.json({
       sessionId: session.id,

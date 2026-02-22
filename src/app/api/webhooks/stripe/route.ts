@@ -86,11 +86,15 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
     const userId = metadata.user_id || null;
     const itemsJson = metadata.items;
     const email = sess.customer_details?.email || metadata.email;
-    const shippingAddress = sess.shipping_details?.address;
+    
+    // Try shipping address first, fallback to billing address if shipping not provided
+    const shippingAddress = sess.shipping_details?.address || sess.customer_details?.address;
+    const addressName = sess.shipping_details?.name || sess.customer_details?.name || "";
 
     // Debug logging
     console.log("Webhook debug - shipping_details:", JSON.stringify(sess.shipping_details, null, 2));
     console.log("Webhook debug - customer_details:", JSON.stringify(sess.customer_details, null, 2));
+    console.log("Webhook debug - using address from:", shippingAddress ? (sess.shipping_details?.address ? "shipping" : "billing") : "none");
 
     if (!itemsJson) {
       throw new Error("No items in metadata");
@@ -121,10 +125,10 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
     // Generate order number
     const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-    // Format shipping address
+    // Format shipping address (use shipping or billing address)
     const formattedShippingAddress = shippingAddress
       ? {
-          name: sess.shipping_details?.name || "",
+          name: addressName,
           address_line1: shippingAddress.line1 || "",
           address_line2: shippingAddress.line2 || "",
           city: shippingAddress.city || "",
@@ -134,7 +138,7 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
           phone: sess.customer_details?.phone || "",
         }
       : {
-          name: sess.customer_details?.name || "",
+          name: addressName,
           address_line1: "",
           address_line2: "",
           city: "",
@@ -143,6 +147,8 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
           country: "",
           phone: sess.customer_details?.phone || "",
         };
+
+    console.log("Webhook debug - formatted address:", JSON.stringify(formattedShippingAddress, null, 2));
 
     // Create order in database with 'paid' status since payment was successful
     const { data: order, error: orderError } = await supabaseAdmin
