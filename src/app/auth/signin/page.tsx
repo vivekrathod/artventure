@@ -22,18 +22,34 @@ function SignInForm() {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      toast.error(error.message);
-      setLoading(false);
-    } else {
+      if (error) {
+        console.error("Sign-in error:", error);
+        toast.error(error.message);
+        setLoading(false);
+        return;
+      }
+
+      if (!data.user) {
+        console.error("No user returned from sign-in");
+        toast.error("Sign-in failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+
+      console.log("Sign-in successful:", data.user.email);
       toast.success("Signed in successfully!");
       router.push(redirectTo);
       router.refresh();
+    } catch (err) {
+      console.error("Unexpected error during sign-in:", err);
+      toast.error("An unexpected error occurred. Please try again.");
+      setLoading(false);
     }
   };
 
