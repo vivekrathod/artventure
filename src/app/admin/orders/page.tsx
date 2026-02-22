@@ -207,7 +207,7 @@ export default function AdminOrdersPage() {
                         Shipping Address
                       </h4>
                       <p className="mt-2 text-sm text-gray-600">
-                        {order.shipping_address.full_name}
+                        {order.shipping_address.name}
                         <br />
                         {order.shipping_address.address_line1}
                         {order.shipping_address.address_line2 &&

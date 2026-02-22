@@ -206,7 +206,7 @@ export default function OrdersPage() {
                         Shipping Address
                       </h4>
                       <p className="mt-2 text-sm text-gray-600">
-                        {order.shipping_address.full_name}
+                        {order.shipping_address.name}
                         <br />
                         {order.shipping_address.address_line1}
                         {order.shipping_address.address_line2 &&
@@ -217,6 +217,12 @@ export default function OrdersPage() {
                         {order.shipping_address.postal_code}
                         <br />
                         {order.shipping_address.country}
+                        {order.shipping_address.phone && (
+                          <>
+                            <br />
+                            Phone: {order.shipping_address.phone}
+                          </>
+                        )}
                       </p>
                     </div>
                   )}
