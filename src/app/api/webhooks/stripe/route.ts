@@ -88,6 +88,10 @@ async function handleCheckoutComplete(session: Stripe.Checkout.Session) {
     const email = sess.customer_details?.email || metadata.email;
     const shippingAddress = sess.shipping_details?.address;
 
+    // Debug logging
+    console.log("Webhook debug - shipping_details:", JSON.stringify(sess.shipping_details, null, 2));
+    console.log("Webhook debug - customer_details:", JSON.stringify(sess.customer_details, null, 2));
+
     if (!itemsJson) {
       throw new Error("No items in metadata");
     }
