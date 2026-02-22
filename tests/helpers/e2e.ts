@@ -39,23 +39,43 @@ export async function createAndSignInAdmin(page: Page) {
 
 /**
  * Sign out the current user
+ * Improved with better waits and fallback strategies
  */
 export async function signOut(page: Page) {
-  // Try to find user menu by email pattern (contains @)
-  const userMenuButton = page.locator('button').filter({ hasText: '@' }).first();
-
   try {
-    if (await userMenuButton.isVisible({ timeout: 2000 })) {
+    // Strategy 1: Try to use the UI dropdown
+    // Find user menu button by email pattern (contains @)
+    const userMenuButton = page.locator('button').filter({ hasText: '@' }).first();
+    
+    const isVisible = await userMenuButton.isVisible({ timeout: 3000 }).catch(() => false);
+    
+    if (isVisible) {
+      // Click user menu button
       await userMenuButton.click();
-      await page.click('text=Sign Out');
-    } else {
-      // Navigate to sign out directly
-      await page.goto('/auth/signout');
+      
+      // Wait for dropdown to appear
+      await page.waitForTimeout(500);
+      
+      // Click Sign Out button
+      const signOutButton = page.locator('button:has-text("Sign Out")').first();
+      await signOutButton.click();
+      
+      // Wait for sign out to complete (redirect or UI update)
+      await page.waitForTimeout(1000);
+      
+      return;
     }
   } catch (e) {
-    // Fallback: navigate to sign out directly
-    await page.goto('/auth/signout');
+    console.log('UI sign-out failed, using direct navigation:', e);
   }
+  
+  // Strategy 2: Fallback to direct navigation
+  await page.goto('/auth/signout');
+  
+  // Wait for redirect to complete
+  await page.waitForURL('/', { timeout: 5000 }).catch(() => {
+    // Ignore timeout - might already be at /
+  });
 }
 
 /**
