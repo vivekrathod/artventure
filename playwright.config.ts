@@ -26,7 +26,12 @@ export default defineConfig({
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    /* Increase timeouts for mobile emulators (they're slower) */
+    actionTimeout: 15000, // 15s for clicks, fills, etc. (default: 0 = no timeout)
+    navigationTimeout: 30000, // 30s for page loads (default: 0 = no timeout)
   },
+  /* Global test timeout */
+  timeout: 60000, // 60s per test (increased from default 30s for mobile)
 
   /* Configure projects for major browsers */
   projects: [
@@ -48,11 +53,21 @@ export default defineConfig({
     /* Test against mobile viewports. */
     {
       name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
+      use: { 
+        ...devices['Pixel 5'],
+        // Mobile emulators are slower - increase timeouts
+        actionTimeout: 20000, // 20s for mobile actions
+        navigationTimeout: 45000, // 45s for mobile page loads
+      },
     },
     {
       name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
+      use: { 
+        ...devices['iPhone 12'],
+        // Mobile Safari is especially slow in emulation
+        actionTimeout: 20000, // 20s for mobile actions
+        navigationTimeout: 45000, // 45s for mobile page loads
+      },
     },
   ],
 
