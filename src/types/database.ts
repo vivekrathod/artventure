@@ -61,7 +61,7 @@ export interface ProductWithImages extends Product {
 // ORDERS
 // ============================================================================
 export interface ShippingAddress {
-  full_name: string;
+  name: string; // Changed from full_name to match Stripe webhook format
   address_line1: string;
   address_line2?: string;
   city: string;
